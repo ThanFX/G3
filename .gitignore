@@ -1,4 +1,5 @@
 .idea/
 Godeps/
+vendor/
 .exe
 description
