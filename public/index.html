@@ -1,4 +1,4 @@
-{{ define "index" }}
+{{% define "index" %}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +10,20 @@
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
 </head>
 <body>
-<div>Hello!!!</div>
-<script src="./public/script.js"></script>
+<div id="currentDate">
+    {{ currentDate.day }} день {{ currentDate.ten }} декады {{ currentDate.month }} месяца {{ currentDate.year }} года
+</div>
+<div id="personList">
+    <h1>Список персонажей:</h1>
+    <ul>
+        <li v-for="person in persons">
+            {{ person.Name }}
+        </li>
+    </ul>
+</div>
+
+<script src="/public/js/load.js"></script>
+<script src="/public/js/script.js"></script>
 </body>
 </html>
-{{ end }}
+{{% end %}}
