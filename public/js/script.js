@@ -2,9 +2,12 @@
 var HOST = 'http://localhost:8880';
 var GET_PERSONS_URL = HOST + '/api/persons';
 var GET_DATE_URL = HOST + '/api/date';
+var NEXT_DATE_URL = HOST + '/api/nextdate';
 function onError(response) {
-    console.log("Ошибка!!!/n" + response);
+    console.log(response);
 }
+
+/*
 function onSuccessPersons(response) {
     var personList = new Vue({
        el: '#personList',
@@ -13,14 +16,26 @@ function onSuccessPersons(response) {
        }
     });
 }
-function onSuccessDate(curDate) {
-    var currentDate = new Vue({
-        el: '#currentDate',
-        data: {
-            currentDate: curDate.result
+*/
+
+var currentDate = new Vue({
+    el: '#currentDate',
+    data: {
+        currentDate: ""
+    },
+    methods: {
+        nextDate: function() {
+            window.load(NEXT_DATE_URL, getDateFromServer, onError);
         }
-    });
-    console.log(currentDate.data);
+    },
+});
+
+function onSuccessDate(curDate) {
+    currentDate.currentDate = curDate.result;
 }
-window.load(GET_PERSONS_URL, onSuccessPersons, onError);
-window.load(GET_DATE_URL, onSuccessDate, onError);
+//window.load(GET_PERSONS_URL, onSuccessPersons, onError);
+
+function getDateFromServer() {
+    window.load(GET_DATE_URL, onSuccessDate, onError);
+}
+getDateFromServer();

@@ -7,7 +7,12 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func DateHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func GetDateHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	curDate := models.GetCalendarDate()
 	SendJsonResponse(w, r, http.StatusOK, curDate, 0, "")
+}
+
+func NextDateHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	models.IncDate()
+	SendJsonResponse(w, r, http.StatusOK, nil, 0, "")
 }

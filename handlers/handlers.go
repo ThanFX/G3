@@ -38,6 +38,9 @@ func SendJsonResponse(w http.ResponseWriter, _ *http.Request, code int, content 
 		jsonStr, _ = json.Marshal(response)
 	}
 	w.Header().Set("Content-type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.WriteHeader(code)
 	w.Write(jsonStr)
 }

@@ -16,7 +16,7 @@ import (
 )
 
 func start() {
-	models.CreatePerson(10)
+	models.CreatePerson(20)
 	models.SetDate(9842)
 	models.SetCalendar()
 }
@@ -24,7 +24,8 @@ func start() {
 func getRouter() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/api/persons", handlers.PersonsHandler)
-	router.GET("/api/date", handlers.DateHandler)
+	router.GET("/api/date", handlers.GetDateHandler)
+	router.GET("/api/nextdate", handlers.NextDateHandler)
 	router.GET("/", handlers.HomeHandler)
 	router.ServeFiles("/public/*filepath", http.Dir("./public/"))
 	return router

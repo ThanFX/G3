@@ -6,7 +6,7 @@ type Person struct {
 	Id     int
 	Name   string
 	Birth  int
-	IsMale bool
+	IsMale bool `json: "is_male"`
 	Chunk  int
 }
 
