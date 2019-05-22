@@ -1,0 +1,40 @@
+<a v-bind:href="url">Link</a> <!--значение в динамические параметры-->
+<a :href="url">Link</a> <!--короткая форма динамического параметра-->
+
+<div v-html="link"></div> <!--вывод заранее приготовленного куска html-->
+<button v-on:click="onClick"></button> <!--события-->
+<button @click="onClick"></button> <!--короткая форма определения  события-->
+<button v-on:click="onClick(5, 10)"></button> <!--вызов функции события с параметрами-->
+<button v-on:click.prevent="onClick"></button> <!--Установка модификатора события, в данном случае preventDefault()-->
+
+<input type="text" v-model="inputValue"> <!--2 way binding - двустороннее связывание между инпутом и другим элементом -->
+<h2>{{ inputValue }}</h2>               <!--(между моделью в коде и представлением на странице)-->
+
+<div class="block" :class="{'red': isActive, 'green': !isActive}" :class="blue"></div> <!--Добавление классов в ноду:
+red, green - названия классов, isActive - булево выражение, по которому определяется наличие класса у ноды
+blue - безусловное добавление класса-->
+<div class="block" :class="[blue, {'red': isActive}], getCSSClasses()"></div> <!--комбинация из разных способов добавления-->
+
+
+
+
+
+
+
+
+settings.json
+{
+    "go.useCodeSnippetsOnFunctionSuggest": false,
+    "go.autocompleteUnimportedPackages": true,
+    "go.installDependenciesWhenBuilding": true,
+    "explorer.confirmDragAndDrop": false,
+    "go.buildOnSave": "package",
+    "go.lintOnSave": "package",
+    "go.vetOnSave": "package",
+    "go.buildFlags": [],
+    "go.lintFlags": [
+        "--exclude=\"\bexported \\w+ (\\S*['.]*)([a-zA-Z'.*]*) should have comment or be unexported\b\""
+        ],
+    "go.vetFlags": [],
+    "go.formatTool": "goimports"
+}

@@ -3,10 +3,10 @@ package models
 import "math/rand"
 
 type Person struct {
-	Id     int
+	ID     int
 	Name   string
 	Birth  int
-	IsMale bool `json: "is_male"`
+	IsMale bool
 	Chunk  int
 }
 
@@ -123,9 +123,8 @@ func getRandName(isMale bool) string {
 		"Месил"}
 	if isMale {
 		return maleName[getRandInt(0, len(maleName)-1)] + " " + maleSurname[getRandInt(0, len(maleSurname)-1)]
-	} else {
-		return femaleName[getRandInt(0, len(femaleName)-1)] + " " + femaleSurname[getRandInt(0, len(femaleSurname)-1)]
 	}
+	return femaleName[getRandInt(0, len(femaleName)-1)] + " " + femaleSurname[getRandInt(0, len(femaleSurname)-1)]
 
 }
 

@@ -27,7 +27,7 @@ var currentDate = new Vue({
         nextDate: function() {
             window.load(NEXT_DATE_URL, getDateFromServer, onError);
         }
-    },
+    }
 });
 
 function onSuccessDate(curDate) {

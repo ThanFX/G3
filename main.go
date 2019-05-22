@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	stdlog "log"
 	"math/rand"
 	"net"
@@ -19,6 +20,7 @@ func start() {
 	models.CreatePerson(20)
 	models.SetDate(9842)
 	models.SetCalendar()
+	fmt.Println("Запускаем сервер...")
 }
 
 func getRouter() *httprouter.Router {
