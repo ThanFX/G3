@@ -1,0 +1,16 @@
+.fisher {
+    margin-top: 10px;
+    display: flex;
+    margin-right: 10px;
+}
+
+.fisher-img {
+    width: 35px;
+    height: 35px;
+}
+
+.fisher-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}

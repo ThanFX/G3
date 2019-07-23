@@ -8,6 +8,7 @@ type Person struct {
 	Birth  int
 	IsMale bool
 	Chunk  int
+	Skill  float32
 }
 
 var Persons []Person
@@ -137,7 +138,8 @@ func CreatePerson(count int) {
 			getRandName(isMale),
 			getRandInt(18, 28),
 			isMale,
-			1}
+			1,
+			1.0}
 	}
 }
 

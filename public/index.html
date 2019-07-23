@@ -1,36 +1,53 @@
-<!-- 
-for golang template only
-{{% define "index" %}}
- -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>G3</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link href="./lake/lake.css" rel="stylesheet">
+    <link href="./fisher/fisher.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
 </head>
 <body>
-<div id="currentDate">
-    {{ currentDate.day }} день {{ currentDate.ten }} декады {{ currentDate.month }} месяца {{ currentDate.year }} года
-    <button v-on:click="nextDate">Следующий день</button>
-</div>
-<div id="personList">
-    <h1>Список персонажей:</h1>
-    <ul>
-        <li v-for="person in persons">
-            {{ person.Name }}
-        </li>
-    </ul>
-</div>
+<div id="app">
+    <div class="date">
+        <span>{{ currentDate.day }} день</span>
+        <span>{{ currentDate.ten }} декады</span>
+        <span>{{ currentDate.month }} месяца</span>
+        <span>{{ currentDate.year }} года</span>
+    </div>
+    <div class="fishers">
+        <fisher v-for="fisher, key in fishers"
+              :key="key"
+              :name="fisher.name"
+              :level="fisher.level">
+        </fisher>
+    </div>
+    <div class="lakes">
+        <lake v-for="lake, key in lakes"
+              :key="key"
+              :fish-num="lake.fishNum"
+              :size="lake.size">
+        </lake>
+    </div>
+    <textarea cols="60" rows="7" v-model="listWithNewline" class="events"></textarea>
+    <span class="timer-checkbox">
+        <input @change="handleCheckbox" type="checkbox" id="checkbox" v-model="timerChecked">
+        <label class="timer-check bold" for="checkbox">Таймер</label>
+    </span>
+    <div v-if="timerChecked" class="timer">
+        <span v-if="timer" class="bold" @click="editTimer">{{ maxTime - time }}</span>
+        <div v-else>
+            <input class="edit-timer bold" v-model="maxTime">
+            <button @click="setFetchTimeout" class="next-day bold">Запуск</button>
+        </div>
+    </div>
+    <button v-else @click="fetchNewDay" class="next-day bold">Следующий день</button>
 
-<script src="js/load.js"></script>
-<script src="js/script.js"></script>
+</div>
+<script src="lake/lake.vue.js"></script>
+<script src="fisher/fisher.vue.js"></script>
+<script src="index.js"></script>
+
 </body>
 </html>
-<!-- 
-for golang template only
-{{% end %}}
- -->

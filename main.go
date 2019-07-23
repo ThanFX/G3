@@ -17,7 +17,7 @@ import (
 )
 
 func start() {
-	models.CreatePerson(20)
+	models.CreatePerson(3)
 	models.SetDate(9842)
 	models.SetCalendar()
 	fmt.Println("Запускаем сервер...")
