@@ -18,6 +18,7 @@ import (
 
 func start() {
 	models.CreatePerson(3)
+	models.CreateLakes(3)
 	models.SetDate(9842)
 	models.SetCalendar()
 	fmt.Println("Запускаем сервер...")
@@ -28,6 +29,8 @@ func getRouter() *httprouter.Router {
 	router.GET("/api/persons", handlers.PersonsHandler)
 	router.GET("/api/date", handlers.GetDateHandler)
 	router.GET("/api/nextdate", handlers.NextDateHandler)
+	router.GET("/api/lakes", handlers.LakesHandler)
+	router.GET("/api/events", handlers.GetEventsHandler)
 	router.GET("/", handlers.HomeHandler)
 	router.ServeFiles("/public/*filepath", http.Dir("./public/"))
 	return router

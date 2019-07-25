@@ -38,16 +38,28 @@ new Vue({
                 .catch(error => console.error(error))
             },
             fetchLakes() {
-                fetch(`${apiUrl}`)
+                fetch(`${apiUrl}/api/lakes`)
                 .then(stream => stream.json())
                 .then(data => {
                     const lakes = [];
-                    for (let key in data.bpi) {
-                        const lake = data.bpi[key];
+                    for (let key in data.result.items) {
+                        const lake = data.result.items[key];
+                        let size;
+                        switch (lake.Size) {
+                            case 1:
+                                size = 'Малое';
+                                break
+                            case 2:
+                                size = 'Среднее';
+                                break
+                            case 3:
+                                size = 'Большое';
+                                break
+                        }
                         lakes.push(
                             {
-                                fishNum: lake.rate,
-                                size: lake.rate_float
+                                fishNum: lake.Capacity,
+                                size: size
                             }
                             );
                         }
@@ -59,7 +71,6 @@ new Vue({
                     fetch(`${apiUrl}/api/persons`)
                     .then(stream => stream.json())
                     .then(data => {
-                    console.log(data);
                     const fishers = [];
                     for (let key in data.result.items) {
                         const fisher = data.result.items[key];
@@ -77,12 +88,10 @@ new Vue({
                 .catch(error => console.error(error))
         },
         fetchEvents(){
-            fetch(`${apiUrl}`)
+            fetch(`${apiUrl}/api/events`)
                 .then(stream => stream.json())
                 .then(data => {
-                    //this.events = data.time;
-
-                    this.events.push('Иоган купил лошадь', 'Мольберт женился', 'Ивана убило');
+                    this.events.push(data.result.items);
                 })
                 .catch(error => console.error(error))
         },

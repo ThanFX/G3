@@ -13,12 +13,12 @@ type Person struct {
 
 var Persons []Person
 
-func getRandInt(min, max int) int {
+func GetRandInt(min, max int) int {
 	return rand.Intn(max-min+1) + min
 }
 
 func getRandMale() bool {
-	return getRandInt(0, 1) != 0
+	return GetRandInt(0, 1) != 0
 }
 
 func getRandName(isMale bool) string {
@@ -123,9 +123,9 @@ func getRandName(isMale bool) string {
 		"Эльлан",
 		"Месил"}
 	if isMale {
-		return maleName[getRandInt(0, len(maleName)-1)] + " " + maleSurname[getRandInt(0, len(maleSurname)-1)]
+		return maleName[GetRandInt(0, len(maleName)-1)] + " " + maleSurname[GetRandInt(0, len(maleSurname)-1)]
 	}
-	return femaleName[getRandInt(0, len(femaleName)-1)] + " " + femaleSurname[getRandInt(0, len(femaleSurname)-1)]
+	return femaleName[GetRandInt(0, len(femaleName)-1)] + " " + femaleSurname[GetRandInt(0, len(femaleSurname)-1)]
 
 }
 
@@ -136,7 +136,7 @@ func CreatePerson(count int) {
 		Persons[i] = Person{
 			i + 1,
 			getRandName(isMale),
-			getRandInt(18, 28),
+			GetRandInt(18, 28),
 			isMale,
 			1,
 			1.0}
