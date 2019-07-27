@@ -19,6 +19,8 @@ import (
 func start() {
 	models.CreatePerson(3)
 	models.CreateLakes(3)
+	models.LakesStart()
+	go models.EventLoop()
 	models.SetDate(9842)
 	models.SetCalendar()
 	fmt.Println("Запускаем сервер...")

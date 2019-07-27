@@ -3,10 +3,11 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/ThanFX/G3/models"
 	"github.com/julienschmidt/httprouter"
 )
 
 func GetEventsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	events := []string{"Тестовая строка №1", "Тестовая строка №2", "Тестовая строка №3"}
+	events := models.GetEvents()
 	SendJsonResponse(w, r, http.StatusOK, events, len(events), "")
 }

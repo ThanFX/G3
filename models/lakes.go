@@ -1,11 +1,34 @@
 package models
 
+import "strconv"
+
 type Lake struct {
 	ID          int
 	Size        int
 	MaxCapacity int
 	Capacity    int
 	DayInc      int
+	InCh        chan string `json:"-"`
+}
+
+func (l *Lake) SetDayInc() {
+	l.DayInc = int(l.MaxCapacity / 100)
+	l.Capacity += l.DayInc
+	if l.Capacity > l.MaxCapacity {
+		l.DayInc -= (l.Capacity - l.MaxCapacity)
+		l.Capacity = l.MaxCapacity
+	}
+	formatString := "Озеро: " + strconv.Itoa(l.ID) + ". Прирост за день - " + strconv.Itoa(l.DayInc) + ", текущее значение - " + strconv.Itoa(l.Capacity)
+	NewEvent(formatString)
+}
+
+func (l *Lake) LakeNextDate() {
+	for {
+		com := <-l.InCh
+		if com == "next" {
+			l.SetDayInc()
+		}
+	}
 }
 
 var Lakes []Lake
@@ -31,7 +54,20 @@ func CreateLakes(count int) {
 			size,
 			maxCap,
 			cap,
-			0}
+			0,
+			make(chan string, 0)}
+	}
+}
+
+func LakesStart() {
+	for l := range Lakes {
+		go Lakes[l].LakeNextDate()
+	}
+}
+
+func LakesNextDate() {
+	for l := range Lakes {
+		Lakes[l].InCh <- "next"
 	}
 }
 
