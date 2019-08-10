@@ -17,9 +17,11 @@ import (
 )
 
 func start() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	models.CreatePerson(3)
 	models.CreateLakes(3)
 	models.LakesStart()
+	models.PersonsStart()
 	go models.EventLoop()
 	models.SetDate(9842)
 	models.SetCalendar()
