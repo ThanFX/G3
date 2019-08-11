@@ -18,15 +18,14 @@
 }
 
 .fishers {
-    display: flex;
-    flex-wrap: wrap;
     max-width: 600px;
 }
 
 .events {
     padding: 10px;
-    border-radius: 6px;
-    border: solid 1px #003c8f;
+    border: none;
+    background-color: #e7f2fb;
+    border-radius: 12px;
 }
 
 .timer-checkbox {
@@ -68,4 +67,9 @@
     font-size: 1.05em;
     font-weight: 600;
     letter-spacing: 0.1em;
+}
+
+.content {
+    display: flex;
+    min-height: 530px;
 }

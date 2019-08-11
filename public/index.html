@@ -16,21 +16,25 @@
         <span>{{ currentDate.month }} месяца</span>
         <span>{{ currentDate.year }} года</span>
     </div>
-    <div class="fishers">
-        <fisher v-for="fisher, key in fishers"
-              :key="key"
-              :name="fisher.name"
-              :level="fisher.level">
-        </fisher>
+    <div class="content">
+        <div class="field">
+            <div class="lakes">
+                <lake v-for="lake, key in lakes"
+                      :key="key"
+                      :fish-num="lake.fishNum"
+                      :size="lake.size">
+                </lake>
+            </div>
+            <div class="fishers">
+                <fisher v-for="fisher, key in fishers"
+                        :key="key"
+                        :name="fisher.name"
+                        :level="fisher.level">
+                </fisher>
+            </div>
+        </div>
+        <textarea cols="100" v-model="listWithNewline" class="events"></textarea>
     </div>
-    <div class="lakes">
-        <lake v-for="lake, key in lakes"
-              :key="key"
-              :fish-num="lake.fishNum"
-              :size="lake.size">
-        </lake>
-    </div>
-    <textarea cols="200" rows="25" v-model="listWithNewline" class="events"></textarea>
     <span class="timer-checkbox">
         <input @change="handleCheckbox" type="checkbox" id="checkbox" v-model="timerChecked">
         <label class="timer-check bold" for="checkbox">Таймер</label>
