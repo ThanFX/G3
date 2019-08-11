@@ -22,6 +22,9 @@ new Vue({
     mounted() {
         this.fetchAll();
     },
+    updated() {
+        this.scrollTextArea();
+    },
     methods: {
         fetchDate() {
             fetch(`${apiUrl}/api/date`)
@@ -48,10 +51,10 @@ new Vue({
                         switch (lake.Size) {
                             case 1:
                                 size = 'Малое';
-                                break
+                                break;
                             case 2:
                                 size = 'Среднее';
-                                break
+                                break;
                             case 3:
                                 size = 'Большое';
                                 break
@@ -134,6 +137,10 @@ new Vue({
             if (!this.timerChecked) {
                 this.editTimer();
             }
+        },
+        scrollTextArea() {
+            const textarea = document.getElementsByClassName('events')[0];
+            textarea.scrollTop = textarea.scrollHeight;
         }
     },
     computed: {
