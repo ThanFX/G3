@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	stdlog "log"
 	"math/rand"
@@ -14,6 +15,11 @@ import (
 	"github.com/ThanFX/G3/models"
 	"github.com/braintree/manners"
 	"github.com/julienschmidt/httprouter"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+var (
+	DB *sql.DB
 )
 
 func start() {
@@ -42,6 +48,12 @@ func getRouter() *httprouter.Router {
 
 func main() {
 	conf, err := config.Load()
+	DB, err = sql.Open("sqlite3", "data/g3.db")
+	if err != nil {
+		stdlog.Printf("Ошибка открытия файла БД: %s", err)
+	}
+	models.DB = DB
+	defer DB.Close()
 	start()
 	rand.Seed(time.Now().UTC().UnixNano())
 	if err != nil {

@@ -50,13 +50,19 @@ new Vue({
                         let size;
                         switch (lake.Size) {
                             case 1:
-                                size = 'Малое';
+                                size = 'Крохотное';
                                 break;
                             case 2:
-                                size = 'Среднее';
+                                size = 'Маленькое';
                                 break;
                             case 3:
+                                size = 'Среднее';
+                                break
+                            case 4:
                                 size = 'Большое';
+                                break
+                            case 5:
+                                size = 'Огромное';
                                 break
                         }
                         lakes.push(

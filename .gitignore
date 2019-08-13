@@ -6,4 +6,5 @@ vendor/
 description
 G3*
 !G3.go
+!g3.db
 projectFilesBackup*
