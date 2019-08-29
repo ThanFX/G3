@@ -5,11 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
+	"math/rand"
 	"strconv"
 	"strings"
 
 	uuid "github.com/satori/go.uuid"
 )
+
+type FishHaul struct {
+	Name    string
+	Weight  int
+	Qaulity string
+}
 
 type Lake struct {
 	ID          int
@@ -30,7 +38,7 @@ type Fish struct {
 	IsRiver bool   `json:"is_river"`
 }
 
-func (l *Lake) SetDayInc() {
+func (l *Lake) setDayInc() {
 	l.DayInc = int(l.MaxCapacity / 100)
 	l.Capacity += l.DayInc
 	if l.Capacity > l.MaxCapacity {
@@ -41,13 +49,13 @@ func (l *Lake) SetDayInc() {
 		fmt.Sprintf("В озере %s за день родилось %s рыбы. Всего сейчас %s рыбы.", strconv.Itoa(l.ID), strconv.Itoa(l.DayInc), strconv.Itoa(l.Capacity)))
 }
 
-func (l *Lake) LakeListener() {
+func (l *Lake) lakeListener() {
 	for {
 		com := <-l.InCh
 		params := strings.Split(com, "|")
 		switch params[0] {
 		case "next":
-			go l.SetDayInc()
+			go l.setDayInc()
 		case "fishing":
 			go l.calcFishingResult(params[1], params[2])
 		}
@@ -60,12 +68,35 @@ var (
 	DB     *sql.DB
 )
 
+func getMasteryFunc(x float64) float64 {
+	return math.Round((math.Pow(1.055, x)/2)*100) / 100
+}
+
 func (l *Lake) calcFishingResult(skill, personId string) {
 	s, err := strconv.ParseFloat(skill, 64)
 	if err != nil {
 		fmt.Printf("При получении навыка рыбалки произошла ошибка %s у персонажа %s", err, personId)
 		s = 0
 	}
+	// 32 тика: 8 часов * 4 скорость удочки
+	for i := 0; i < 32; i++ {
+		// шанс на улов
+		f := rand.Float64() + float64(0.25)
+		if f > 1.0 {
+			// Поймали рыбу, теперь нужно определить её параметры
+			var haul FishHaul
+			wf := float64(l.MaxCapacity/50) * (getMasteryFunc(s) / 100)
+			//fmt.Printf("%f\n", wf)
+			haul.Weight = int(math.Float64bits(math.Floor(wf/100)) * 100)
+			if haul.Weight < 100 {
+				haul.Weight = 100
+			}
+			fmt.Printf("На тике №%d поймали рыбу весом %d грамм\n", i+1, haul.Weight)
+		} else {
+			fmt.Printf("На тике №%d нихуя не поймали\n", i+1)
+		}
+	}
+
 	res := (int)(s*2) * l.Size
 	if res > l.Capacity {
 		res = l.Capacity
@@ -83,7 +114,6 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 }
 
 func CreateLakes(count int) {
-	GetFishCatalog()
 	Lakes = make([]Lake, count)
 	for i := range Lakes {
 		size := GetRandInt(1, 5)
@@ -117,7 +147,17 @@ func CreateLakes(count int) {
 	}
 }
 
-func GetFishCatalog() {
+func getFishByLakeSize(size int) []Fish {
+	var f []Fish
+	for i := range Fishes {
+		if Fishes[i].Area <= size {
+			f = append(f, Fishes[i])
+		}
+	}
+	return f
+}
+
+func readFishCatalog() {
 	rows, err := DB.Query("select * from fishes")
 	if err != nil {
 		log.Fatalf("Ошибка получения рыб из БД: %s", err)
@@ -140,8 +180,9 @@ func GetFishCatalog() {
 
 func LakesStart() {
 	for l := range Lakes {
-		go Lakes[l].LakeListener()
+		go Lakes[l].lakeListener()
 	}
+	readFishCatalog()
 }
 
 func LakesNextDate() {

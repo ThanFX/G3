@@ -61,7 +61,7 @@ func (p *Person) setFishingResult(res, lakeId string) {
 		skillUp = 0
 	}
 
-	roundedUp := math.Floor(skillUp*100) / 1000
+	roundedUp := math.Round(skillUp*100) / 1000
 	p.Skill += roundedUp
 	p.Skill = math.Floor(p.Skill*100) / 100
 	NewEvent(
