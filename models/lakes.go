@@ -39,7 +39,10 @@ type Fish struct {
 }
 
 func (l *Lake) setDayInc() {
-	l.DayInc = int(l.MaxCapacity / 100)
+	l.DayInc = int((l.MaxCapacity - l.Capacity) / 100)
+	if l.DayInc < 1 {
+		l.DayInc = 1
+	}
 	l.Capacity += l.DayInc
 	if l.Capacity > l.MaxCapacity {
 		l.DayInc -= (l.Capacity - l.MaxCapacity)
@@ -63,13 +66,33 @@ func (l *Lake) lakeListener() {
 }
 
 var (
-	Lakes  []Lake
-	Fishes []Fish
-	DB     *sql.DB
+	Lakes   []Lake
+	Fishes  []Fish
+	DB      *sql.DB
+	Quality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
 )
 
 func getMasteryFunc(x float64) float64 {
-	return math.Round((math.Pow(1.055, x)/2)*100) / 100
+	res := math.Round((math.Pow(1.055, x)/2)*100) / 100
+	if res < 1 {
+		res = 1
+	} else if res > 100 {
+		res = 100
+	}
+	return res
+}
+
+func getFishNameForAreaSize(areaSize, rarity int) string {
+	var fishes []Fish
+	//fmt.Printf("Ищем рыбу в озере размером %d и с редкостью %d\n", areaSize, rarity)
+	for i := range Fishes {
+		if Fishes[i].Area <= areaSize && Fishes[i].Rarity <= rarity {
+			//fmt.Println(Fishes[i])
+			fishes = append(fishes, Fishes[i])
+		}
+	}
+	//fmt.Println(fishes)
+	return fishes[GetRandInt(0, len(fishes)-1)].Name
 }
 
 func (l *Lake) calcFishingResult(skill, personId string) {
@@ -78,38 +101,90 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 		fmt.Printf("При получении навыка рыбалки произошла ошибка %s у персонажа %s", err, personId)
 		s = 0
 	}
+	var hauls []FishHaul
+	mastery := getMasteryFunc(s)
 	// 32 тика: 8 часов * 4 скорость удочки
 	for i := 0; i < 32; i++ {
 		// шанс на улов
-		f := rand.Float64() + float64(0.25)
-		if f > 1.0 {
+		f := float64(0.25) + (mastery / 100)
+		if rand.Float64() < f && l.Capacity > 2 {
 			// Поймали рыбу, теперь нужно определить её параметры
+			// Считаем максимальный улов (чем выше рандом, тем выше вес)
+			randWeight := GetRandInt(1, int(math.Floor(mastery)))
 			var haul FishHaul
-			wf := float64(l.MaxCapacity/50) * (getMasteryFunc(s) / 100)
-			//fmt.Printf("%f\n", wf)
-			haul.Weight = int(math.Float64bits(math.Floor(wf/100)) * 100)
-			if haul.Weight < 100 {
-				haul.Weight = 100
+			wf := float64(l.MaxCapacity/50) * float64(randWeight/10)
+			if wf < 100 {
+				wf = 100
+			} else {
+				wf = math.Floor(wf/100) * 100
 			}
-			fmt.Printf("На тике №%d поймали рыбу весом %d грамм\n", i+1, haul.Weight)
+			//fmt.Printf("На тике №%d мастерство %f, поймали рыбину весом %f грамм. Шанс на вес - %d\n", i+1, mastery, wf, randWeight)
+			haul.Weight = int(wf)
+
+			// Теперь определяем вид пойманой рыбы
+			var fishRarity = 1
+			for dice := 0; dice < int(mastery/10)+1; dice++ {
+				rar := 1
+				chance := GetRandInt(0, 1000000)
+				switch {
+				case chance > 990000:
+					rar = 5
+				case chance > 960000:
+					rar = 4
+				case chance > 900000:
+					rar = 3
+				case chance > 600000:
+					rar = 2
+				}
+				//fmt.Printf("Выпал шанс %d, рыба уровня %d\n", chance, rar)
+				if rar > fishRarity {
+					fishRarity = rar
+				}
+			}
+			haul.Name = getFishNameForAreaSize(l.Size, fishRarity)
+
+			// Определяем качество пойманной рыбы
+			var fishQuality = 1
+			for dice := 0; dice < int(mastery/10)+1; dice++ {
+				qual := 1
+				chance := GetRandInt(0, 10000000)
+				switch {
+				case chance > 9980000:
+					qual = 5
+				case chance > 9900000:
+					qual = 4
+				case chance > 9500000:
+					qual = 3
+				case chance > 8000000:
+					qual = 2
+				}
+				//fmt.Printf("Выпал шанс %d, рыба уровня %d\n", chance, rar)
+				if qual > fishQuality {
+					fishQuality = qual
+				}
+			}
+			haul.Qaulity = Quality[fishQuality-1]
+			hauls = append(hauls, haul)
+			l.Capacity--
+			//fmt.Printf("На тике №%d поймали рыбу \"%s\" весом %d грамм с качеством \"%s\"\n", i+1, haul.Name, haul.Weight, haul.Qaulity)
 		} else {
-			fmt.Printf("На тике №%d нихуя не поймали\n", i+1)
+			//fmt.Printf("На тике №%d нихуя не поймали\n", i+1)
 		}
 	}
 
-	res := (int)(s*2) * l.Size
-	if res > l.Capacity {
-		res = l.Capacity
-	}
-	l.Capacity -= res
 	personUUID, err := uuid.FromString(personId)
 	if err != nil {
 		fmt.Printf("При получении UUID рыбака произошла ошибка %s у персонажа %s", err, personId)
 	} else {
-		PersonMessage(personUUID, fmt.Sprintf("fishing|%s|%s", strconv.Itoa(res), l.UUID.String()))
+		PersonMessage(personUUID, fmt.Sprintf("fishing|%s|%s", strconv.Itoa(len(hauls)), l.UUID.String()))
 	}
+
+	for i := range hauls {
+		NewEvent(fmt.Sprintf("Поймали рыбу \"%s\" весом %d грамм с качеством \"%s\"", hauls[i].Name, hauls[i].Weight, hauls[i].Qaulity))
+	}
+
 	id := strconv.Itoa(l.ID)
-	r := strconv.Itoa(res)
+	r := strconv.Itoa(len(hauls))
 	NewEvent(fmt.Sprintf("Из озера %s выловили %s рыбы. Осталось %s рыбы.", id, r, strconv.Itoa(l.Capacity)))
 }
 

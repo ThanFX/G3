@@ -55,15 +55,19 @@ func (p *Person) PersonListener() {
 }
 
 func (p *Person) setFishingResult(res, lakeId string) {
-	skillUp, err := strconv.ParseFloat(res, 64)
-	if err != nil {
-		fmt.Printf("Ошибка парсинга улова у персонажа %s: %s", p.Name, err)
-		skillUp = 0
-	}
-
-	roundedUp := math.Round(skillUp*100) / 1000
+	/*
+		skillUp, err := strconv.ParseFloat(res, 64)
+		if err != nil {
+			fmt.Printf("Ошибка парсинга улова у персонажа %s: %s", p.Name, err)
+			skillUp = 0
+		}
+	*/
+	roundedUp := 1.0 //math.Round(skillUp*100) / 1000
 	p.Skill += roundedUp
-	p.Skill = math.Floor(p.Skill*100) / 100
+	p.Skill = math.Round(p.Skill*100) / 100
+	if p.Skill > 100.0 {
+		p.Skill = 100.0
+	}
 	NewEvent(
 		fmt.Sprintf("Персонаж %s выловил %s рыбы и получил прирост навыка рыбалки на %s. Текущее значение навыка - %s",
 			p.Name, res, strconv.FormatFloat(roundedUp, 'f', -1, 64), strconv.FormatFloat(p.Skill, 'f', -1, 64)))
