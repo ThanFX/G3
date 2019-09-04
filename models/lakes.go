@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -14,9 +15,9 @@ import (
 )
 
 type FishHaul struct {
-	Name    string
+	ID      int
 	Weight  int
-	Qaulity string
+	Qaulity int
 }
 
 type Lake struct {
@@ -36,6 +37,93 @@ type Fish struct {
 	Area    int    `json:"area"`
 	IsLake  bool   `json:"is_lake"`
 	IsRiver bool   `json:"is_river"`
+}
+
+var (
+	Lakes   []Lake
+	Fishes  []Fish
+	DB      *sql.DB
+	Quality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
+)
+
+func readFishCatalog() {
+	rows, err := DB.Query("select * from fishes")
+	if err != nil {
+		log.Fatalf("Ошибка получения рыб из БД: %s", err)
+	}
+	defer rows.Close()
+
+	var f Fish
+	for rows.Next() {
+		err = rows.Scan(&f.ID, &f.Name, &f.Rarity, &f.IsLake, &f.IsRiver, &f.Area)
+		if err != nil {
+			log.Fatal("ошибка парсинга записи о рыбе: ", err)
+		}
+		Fishes = append(Fishes, f)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getMasteryFunc(x float64) float64 {
+	res := -0.0000001329*math.Pow(x, 5) + 0.0000279284*math.Pow(x, 4) - 0.0017605406*math.Pow(x, 3) +
+		0.0339750737*math.Pow(x, 2) + 0.599870964*x + 1.1256425921
+	if res < 1 {
+		res = 1
+	} else if res > 100 {
+		res = 100
+	}
+	return res
+}
+
+func getLakeByUUID(id uuid.UUID) (Lake, error) {
+	for i := range Lakes {
+		if uuid.Equal(Lakes[i].UUID, id) {
+			return Lakes[i], nil
+		}
+	}
+	return Lakes[0], errors.New("Такое озеро не найдено\n")
+}
+
+func GetLakes() []Lake {
+	return Lakes
+}
+
+func GetRandLakeUUID() uuid.UUID {
+	return Lakes[GetRandInt(0, len(Lakes)-1)].UUID
+}
+
+func getFishByLakeSize(size int) []Fish {
+	var f []Fish
+	for i := range Fishes {
+		if Fishes[i].Area <= size {
+			f = append(f, Fishes[i])
+		}
+	}
+	return f
+}
+
+func getFishNameForAreaSize(areaSize, rarity int) int {
+	var fishes []Fish
+	for i := range Fishes {
+		if Fishes[i].Area <= areaSize && Fishes[i].Rarity <= rarity {
+			fishes = append(fishes, Fishes[i])
+		}
+	}
+	return fishes[GetRandInt(0, len(fishes)-1)].ID
+}
+
+func getFishByID(id int) Fish {
+	var f Fish
+	for i := range Fishes {
+		if Fishes[i].ID == id {
+			f = Fishes[i]
+			break
+		}
+	}
+	return f
 }
 
 func (l *Lake) setDayInc() {
@@ -65,36 +153,6 @@ func (l *Lake) lakeListener() {
 	}
 }
 
-var (
-	Lakes   []Lake
-	Fishes  []Fish
-	DB      *sql.DB
-	Quality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
-)
-
-func getMasteryFunc(x float64) float64 {
-	res := math.Round((math.Pow(1.055, x)/2)*100) / 100
-	if res < 1 {
-		res = 1
-	} else if res > 100 {
-		res = 100
-	}
-	return res
-}
-
-func getFishNameForAreaSize(areaSize, rarity int) string {
-	var fishes []Fish
-	//fmt.Printf("Ищем рыбу в озере размером %d и с редкостью %d\n", areaSize, rarity)
-	for i := range Fishes {
-		if Fishes[i].Area <= areaSize && Fishes[i].Rarity <= rarity {
-			//fmt.Println(Fishes[i])
-			fishes = append(fishes, Fishes[i])
-		}
-	}
-	//fmt.Println(fishes)
-	return fishes[GetRandInt(0, len(fishes)-1)].Name
-}
-
 func (l *Lake) calcFishingResult(skill, personId string) {
 	s, err := strconv.ParseFloat(skill, 64)
 	if err != nil {
@@ -103,21 +161,24 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 	}
 	var hauls []FishHaul
 	mastery := getMasteryFunc(s)
+	//NewEvent(fmt.Sprintf("Уровень навыка - %f, мастерство - %f", s, mastery))
 	// 32 тика: 8 часов * 4 скорость удочки
 	for i := 0; i < 32; i++ {
 		// шанс на улов
-		f := float64(0.25) + (mastery / 100)
+		f := float64(0.1) + (mastery / 100)
 		if rand.Float64() < f && l.Capacity > 2 {
 			// Поймали рыбу, теперь нужно определить её параметры
 			// Считаем максимальный улов (чем выше рандом, тем выше вес)
 			randWeight := GetRandInt(1, int(math.Floor(mastery)))
 			var haul FishHaul
-			wf := float64(l.MaxCapacity/50) * float64(randWeight/10)
-			if wf < 100 {
-				wf = 100
+			// Максимальная масса рыбы, которую можно выловить с таким уровнем навыка и в таком озере
+			wfMax := float64(l.MaxCapacity/50) * float64(randWeight/10)
+			if wfMax < 100 {
+				wfMax = 100
 			} else {
-				wf = math.Floor(wf/100) * 100
+				wfMax = math.Floor(wfMax/100) * 100
 			}
+			wf := GetRandInt(1, int(wfMax)/100) * 100
 			//fmt.Printf("На тике №%d мастерство %f, поймали рыбину весом %f грамм. Шанс на вес - %d\n", i+1, mastery, wf, randWeight)
 			haul.Weight = int(wf)
 
@@ -141,7 +202,7 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 					fishRarity = rar
 				}
 			}
-			haul.Name = getFishNameForAreaSize(l.Size, fishRarity)
+			haul.ID = getFishNameForAreaSize(l.Size, fishRarity)
 
 			// Определяем качество пойманной рыбы
 			var fishQuality = 1
@@ -163,7 +224,7 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 					fishQuality = qual
 				}
 			}
-			haul.Qaulity = Quality[fishQuality-1]
+			haul.Qaulity = fishQuality
 			hauls = append(hauls, haul)
 			l.Capacity--
 			//fmt.Printf("На тике №%d поймали рыбу \"%s\" весом %d грамм с качеством \"%s\"\n", i+1, haul.Name, haul.Weight, haul.Qaulity)
@@ -176,11 +237,11 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 	if err != nil {
 		fmt.Printf("При получении UUID рыбака произошла ошибка %s у персонажа %s", err, personId)
 	} else {
-		PersonMessage(personUUID, fmt.Sprintf("fishing|%s|%s", strconv.Itoa(len(hauls)), l.UUID.String()))
-	}
-
-	for i := range hauls {
-		NewEvent(fmt.Sprintf("Поймали рыбу \"%s\" весом %d грамм с качеством \"%s\"", hauls[i].Name, hauls[i].Weight, hauls[i].Qaulity))
+		haulJSON, err := json.Marshal(hauls)
+		if err != nil {
+			fmt.Printf("При маршалинге улова в JSON у персонажа %s произошла ошибка %s", personId, err)
+		}
+		PersonMessage(personUUID, fmt.Sprintf("fishing|%s", string(haulJSON)))
 	}
 
 	id := strconv.Itoa(l.ID)
@@ -222,37 +283,6 @@ func CreateLakes(count int) {
 	}
 }
 
-func getFishByLakeSize(size int) []Fish {
-	var f []Fish
-	for i := range Fishes {
-		if Fishes[i].Area <= size {
-			f = append(f, Fishes[i])
-		}
-	}
-	return f
-}
-
-func readFishCatalog() {
-	rows, err := DB.Query("select * from fishes")
-	if err != nil {
-		log.Fatalf("Ошибка получения рыб из БД: %s", err)
-	}
-	defer rows.Close()
-
-	var f Fish
-	for rows.Next() {
-		err = rows.Scan(&f.ID, &f.Name, &f.Rarity, &f.IsLake, &f.IsRiver, &f.Area)
-		if err != nil {
-			log.Fatal("ошибка парсинга записи о рыбе: ", err)
-		}
-		Fishes = append(Fishes, f)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func LakesStart() {
 	for l := range Lakes {
 		go Lakes[l].lakeListener()
@@ -273,21 +303,4 @@ func LakeMessage(id uuid.UUID, text string) {
 		return
 	}
 	l.InCh <- text
-}
-
-func getLakeByUUID(id uuid.UUID) (Lake, error) {
-	for i := range Lakes {
-		if uuid.Equal(Lakes[i].UUID, id) {
-			return Lakes[i], nil
-		}
-	}
-	return Lakes[0], errors.New("Такое озеро не найдено\n")
-}
-
-func GetLakes() []Lake {
-	return Lakes
-}
-
-func GetRandLakeUUID() uuid.UUID {
-	return Lakes[GetRandInt(0, len(Lakes)-1)].UUID
 }
