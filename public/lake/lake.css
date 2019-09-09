@@ -1,0 +1,15 @@
+.lake {
+    max-width: 200px;
+    text-align: center;
+}
+
+.lake-img {
+    width: 203px;
+}
+
+.lake-info {
+    position: relative;
+    top: -66px;
+    left: -7px;
+    font-weight: 600;
+}

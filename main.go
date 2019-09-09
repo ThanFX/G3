@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	stdlog "log"
 	"math/rand"
@@ -14,10 +15,20 @@ import (
 	"github.com/ThanFX/G3/models"
 	"github.com/braintree/manners"
 	"github.com/julienschmidt/httprouter"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+var (
+	DB *sql.DB
 )
 
 func start() {
-	models.CreatePerson(20)
+	rand.Seed(time.Now().UTC().UnixNano())
+	models.CreatePerson(1)
+	models.CreateLakes(3)
+	models.LakesStart()
+	models.PersonsStart()
+	go models.EventLoop()
 	models.SetDate(9842)
 	models.SetCalendar()
 	fmt.Println("Запускаем сервер...")
@@ -28,6 +39,8 @@ func getRouter() *httprouter.Router {
 	router.GET("/api/persons", handlers.PersonsHandler)
 	router.GET("/api/date", handlers.GetDateHandler)
 	router.GET("/api/nextdate", handlers.NextDateHandler)
+	router.GET("/api/lakes", handlers.LakesHandler)
+	router.GET("/api/events", handlers.GetEventsHandler)
 	router.GET("/", handlers.HomeHandler)
 	router.ServeFiles("/public/*filepath", http.Dir("./public/"))
 	return router
@@ -35,6 +48,12 @@ func getRouter() *httprouter.Router {
 
 func main() {
 	conf, err := config.Load()
+	DB, err = sql.Open("sqlite3", "data/g3.db")
+	if err != nil {
+		stdlog.Printf("Ошибка открытия файла БД: %s", err)
+	}
+	models.DB = DB
+	defer DB.Close()
 	start()
 	rand.Seed(time.Now().UTC().UnixNano())
 	if err != nil {

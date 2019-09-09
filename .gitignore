@@ -1,9 +1,11 @@
 .idea/
+.vscode/
 Godeps/
 vendor/
 .exe
 description
 G3*
 !G3.go
+!g3.db
 projectFilesBackup*
 .vscode/tasks.json

@@ -1,6 +1,16 @@
 package models
 
-import "math/rand"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"math"
+	"math/rand"
+	"strconv"
+	"strings"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 type Person struct {
 	ID     int
@@ -8,20 +18,110 @@ type Person struct {
 	Birth  int
 	IsMale bool
 	Chunk  int
+	Skill  float64
+	UUID   uuid.UUID   `json:"-"`
+	InCh   chan string `json:"-"`
 }
 
 var Persons []Person
 
-func getRandInt(min, max int) int {
+func (p *Person) SetDayInc() {
+	lakeUUID := GetRandLakeUUID()
+	LakeMessage(lakeUUID, fmt.Sprintf("fishing|%s|%s", strconv.FormatFloat(p.Skill, 'f', -1, 64), p.UUID.String()))
+}
+
+func PersonsNextDate() {
+	for i := range Persons {
+		Persons[i].InCh <- "next"
+	}
+}
+
+func PersonsStart() {
+	for i := range Persons {
+		go Persons[i].PersonListener()
+	}
+}
+
+func (p *Person) PersonListener() {
+	for {
+		com := <-p.InCh
+		params := strings.Split(com, "|")
+		switch params[0] {
+		case "next":
+			go p.SetDayInc()
+		case "fishing":
+			go p.setFishingResult(params[1])
+		}
+	}
+}
+
+func (p *Person) setFishingResult(res string) {
+	var (
+		hauls []FishHaul
+		dM    float64
+	)
+	err := json.Unmarshal([]byte(res), &hauls)
+	if err != nil {
+		fmt.Printf("При маршалинге улова в JSON у персонажа %d произошла ошибка %s", p.ID, err)
+		return
+	}
+	for i := range hauls {
+		f := getFishByID(hauls[i].ID)
+		// Считаем среднее квадратическое между редкостью рыбы и её качеством
+		dM1 := math.Pow(float64(hauls[i].Qaulity*f.Rarity), 0.5)
+		// Берём целое от деления массы рыбы на 1000 и добавляем 1
+		dM2 := float64((hauls[i].Weight/1000)+1) / 2
+		// Перемножаем 1 и 2 и делим на 10
+		dM3 := (dM1 * float64(dM2)) / 10.0
+		// Берём понижающий коэффициент как (100 - уровень навыка) / 100
+		dM4 := (100 - p.Skill) / 100.0
+		// Берём произведение 3 и 4 - получаем базовый прирост уровня навыка за конкретную пойманую рыбу
+		dM5 := dM3 * dM4
+		//  Рандомно добавляем к этому значению от -20% до +20% - получаем итоговый прирост уровня навыка за рыбину
+		dM6 := float64(GetRandInt(0, 40)-20) / 100.0
+		dM7 := dM5 + dM5*float64(dM6)
+		dM += dM7
+		//fmt.Printf("Персонаж %s поймал рыбу %s с весом %d и качеством %d\n", p.Name, f.Name, hauls[i].Weight, hauls[i].Qaulity)
+		//fmt.Printf("Расчёт мастерства: dM1 = %f, dM2 = %f, dM3 = %f, dM4 = %f, dM5 = %f, dM6 = %f. Итоговый прирост - %f, суммарно - %f\n\n", dM1, dM2, dM3, dM4, dM5, dM6, dM7, dM)
+	}
+
+	p.Skill += dM
+	p.Skill = math.Round(p.Skill*100) / 100
+	if p.Skill > 100.0 {
+		p.Skill = 100.0
+	}
+	NewEvent(fmt.Sprintf("Персонаж %s выловил %d рыбы и получил прирост навыка рыбалки на %f. Текущее значение навыка - %f", p.Name, len(hauls), dM, p.Skill))
+}
+
+func PersonMessage(id uuid.UUID, text string) {
+	p, err := getPersonByUUID(id)
+	if err != nil {
+		fmt.Printf("%s", err)
+		return
+	}
+	p.InCh <- text
+}
+
+func getPersonByUUID(id uuid.UUID) (Person, error) {
+	for i := range Persons {
+		if uuid.Equal(Persons[i].UUID, id) {
+			return Persons[i], nil
+		}
+	}
+	return Persons[0], errors.New("Такой персонаж не найдено\n")
+}
+
+func GetRandInt(min, max int) int {
 	return rand.Intn(max-min+1) + min
 }
 
 func getRandMale() bool {
-	return getRandInt(0, 1) != 0
+	return GetRandInt(0, 1) != 0
 }
 
 func getRandName(isMale bool) string {
-	femaleName := []string{"Лаиммика",
+	femaleName := []string{
+		"Лаиммика",
 		"Аимит",
 		"Севикисса",
 		"Севина",
@@ -46,7 +146,8 @@ func getRandName(isMale bool) string {
 		"Йдирисса",
 		"Сеорда",
 		"Луадет"}
-	femaleSurname := []string{"Суивра",
+	femaleSurname := []string{
+		"Суивра",
 		"Ваитсена",
 		"Деривена",
 		"Сафада",
@@ -71,7 +172,8 @@ func getRandName(isMale bool) string {
 		"Сирижина",
 		"Бефает",
 		"Шиорда"}
-	maleName := []string{"Беронлас",
+	maleName := []string{
+		"Беронлас",
 		"Араланвир",
 		"Белек",
 		"Экоркар",
@@ -96,7 +198,8 @@ func getRandName(isMale bool) string {
 		"Эльлетур",
 		"Фарибар",
 		"Харин"}
-	maleSurname := []string{"Кинадур",
+	maleSurname := []string{
+		"Кинадур",
 		"Туормир",
 		"Тарнанон",
 		"Герон",
@@ -122,9 +225,9 @@ func getRandName(isMale bool) string {
 		"Эльлан",
 		"Месил"}
 	if isMale {
-		return maleName[getRandInt(0, len(maleName)-1)] + " " + maleSurname[getRandInt(0, len(maleSurname)-1)]
+		return maleName[GetRandInt(0, len(maleName)-1)] + " " + maleSurname[GetRandInt(0, len(maleSurname)-1)]
 	}
-	return femaleName[getRandInt(0, len(femaleName)-1)] + " " + femaleSurname[getRandInt(0, len(femaleSurname)-1)]
+	return femaleName[GetRandInt(0, len(femaleName)-1)] + " " + femaleSurname[GetRandInt(0, len(femaleSurname)-1)]
 
 }
 
@@ -135,9 +238,12 @@ func CreatePerson(count int) {
 		Persons[i] = Person{
 			i + 1,
 			getRandName(isMale),
-			getRandInt(18, 28),
+			GetRandInt(18, 28),
 			isMale,
-			1}
+			1,
+			1.0,
+			uuid.Must(uuid.NewV1()),
+			make(chan string, 0)}
 	}
 }
 
