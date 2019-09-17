@@ -36,6 +36,7 @@ func start() {
 
 func getRouter() *httprouter.Router {
 	router := httprouter.New()
+	router.GET("/ws/events/", handlers.GetWSEventsHandler)
 	router.GET("/api/persons", handlers.PersonsHandler)
 	router.GET("/api/date", handlers.GetDateHandler)
 	router.GET("/api/nextdate", handlers.NextDateHandler)
