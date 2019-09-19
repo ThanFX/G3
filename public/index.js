@@ -106,7 +106,7 @@ new Vue({
         },
         fetchAll() {
             this.fetchDate();
-            //this.fetchEvents();
+            this.fetchEvents();
             this.fetchLakes();
             this.fetchFishers();
         },

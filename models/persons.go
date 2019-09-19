@@ -79,7 +79,7 @@ func (p *Person) setFishingResult(res string) {
 		dM5 := dM3 * dM4
 		//  Рандомно добавляем к этому значению от -20% до +20% - получаем итоговый прирост уровня навыка за рыбину
 		dM6 := float64(GetRandInt(0, 40)-20) / 100.0
-		dM7 := dM5 + dM5*float64(dM6)
+		dM7 := (dM5 + dM5*float64(dM6)) / 10
 		dM += dM7
 		//fmt.Printf("Персонаж %s поймал рыбу %s с весом %d и качеством %d\n", p.Name, f.Name, hauls[i].Weight, hauls[i].Qaulity)
 		//fmt.Printf("Расчёт мастерства: dM1 = %f, dM2 = %f, dM3 = %f, dM4 = %f, dM5 = %f, dM6 = %f. Итоговый прирост - %f, суммарно - %f\n\n", dM1, dM2, dM3, dM4, dM5, dM6, dM7, dM)

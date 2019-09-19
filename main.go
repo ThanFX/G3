@@ -56,6 +56,7 @@ func main() {
 	models.DB = DB
 	defer DB.Close()
 	start()
+	handlers.RunHub()
 	rand.Seed(time.Now().UTC().UnixNano())
 	if err != nil {
 		stdlog.Fatal(err.Error())

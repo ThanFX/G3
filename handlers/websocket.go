@@ -64,11 +64,15 @@ func (h *Hub) run() {
 }
 
 var (
-	HubServ = newHub()
+	hub     = newHub()
 	newline = []byte{'\n'}
 	space   = []byte{' '}
 	users   int
 )
+
+func RunHub() {
+	go hub.run()
+}
 
 func newHub() *Hub {
 	return &Hub{
