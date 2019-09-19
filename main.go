@@ -24,7 +24,7 @@ var (
 
 func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	models.CreatePerson(1)
+	models.CreatePerson(10)
 	models.CreateLakes(3)
 	models.LakesStart()
 	models.PersonsStart()

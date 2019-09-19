@@ -16,14 +16,21 @@ new Vue({
             time: 0,
             maxTime: 10,
             timer: null,
-            timerChecked: false
+            timerChecked: false,
+            eventsInterval: null
         };
     },
     mounted() {
         this.fetchAll();
+        this.eventsInterval = setInterval(function () {
+            this.fetchEvents();
+        }.bind(this), 1000);
     },
     updated() {
         this.scrollTextArea();
+    },
+    beforeDestroy: function(){
+        clearInterval(this.eventsInterval);
     },
     methods: {
         fetchDate() {
@@ -50,19 +57,13 @@ new Vue({
                         let size;
                         switch (lake.Size) {
                             case 1:
-                                size = 'Крохотное';
+                                size = 'Малое';
                                 break;
                             case 2:
-                                size = 'Маленькое';
+                                size = 'Среднее';
                                 break;
                             case 3:
-                                size = 'Среднее';
-                                break
-                            case 4:
                                 size = 'Большое';
-                                break
-                            case 5:
-                                size = 'Огромное';
                                 break
                         }
                         lakes.push(
@@ -100,7 +101,9 @@ new Vue({
             fetch(`${apiUrl}/api/events`)
                 .then(stream => stream.json())
                 .then(data => {
-                    this.events.push(data.result.items);
+                    if(data.result.items) {
+                        this.events.push(data.result.items);
+                    }
                 })
                 .catch(error => console.error(error))
         },
