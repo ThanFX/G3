@@ -24,7 +24,7 @@ var (
 
 func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	models.CreatePerson(10)
+	models.CreatePerson(1)
 	models.CreateLakes(3)
 	models.LakesStart()
 	models.PersonsStart()
@@ -38,6 +38,7 @@ func getRouter() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/ws/events/", handlers.GetWSEventsHandler)
 	router.GET("/api/persons", handlers.PersonsHandler)
+	router.GET("/api/person/:id/inventory", handlers.PersonInventoryHandler)
 	router.GET("/api/date", handlers.GetDateHandler)
 	router.GET("/api/nextdate", handlers.NextDateHandler)
 	router.GET("/api/lakes", handlers.LakesHandler)

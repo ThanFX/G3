@@ -28,7 +28,7 @@ type Item struct {
 }
 
 var (
-	Items    []Item
+	Items    []*Item
 	itemPool = sync.Pool{
 		New: func() interface{} {
 			return new(Item)
@@ -36,8 +36,17 @@ var (
 	}
 )
 
+func getItemByUUID(id uuid.UUID) *Item {
+	for i := range Items {
+		if uuid.Equal(id, Items[i].UUID) {
+			return Items[i]
+		}
+	}
+	return nil
+}
+
 // Берём память из пула
-func getItemPool() (item *Item) {
+func getItemPool() (item interface{}) {
 	mem := itemPool.Get()
 	if mem != nil {
 		item = mem.(*Item)

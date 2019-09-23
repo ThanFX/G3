@@ -84,7 +84,7 @@ new Vue({
                     const fishers = [];
                     for (let key in data.result.items) {
                         const fisher = data.result.items[key];
-                        //console.log(fisher)
+                        console.log(fisher)
                         fishers.push(
                             {
                                 name: fisher.Name,

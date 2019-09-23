@@ -13,21 +13,21 @@ import (
 )
 
 type Person struct {
-	ID     int
-	Name   string
-	Birth  int
-	IsMale bool
-	Chunk  int
-	Skill  float64
-	UUID   uuid.UUID   `json:"-"`
-	InCh   chan string `json:"-"`
+	ID        uuid.UUID
+	Name      string
+	Birth     int
+	IsMale    bool
+	Chunk     int
+	Skill     float64
+	InCh      chan string                 `json:"-"`
+	Inventory map[uuid.UUID]InventoryItem `json:"-"`
 }
 
 var Persons []Person
 
 func (p *Person) SetDayInc() {
 	lakeUUID := GetRandLakeUUID()
-	LakeMessage(lakeUUID, fmt.Sprintf("fishing|%s|%s", strconv.FormatFloat(p.Skill, 'f', -1, 64), p.UUID.String()))
+	LakeMessage(lakeUUID, fmt.Sprintf("fishing|%s|%s", strconv.FormatFloat(p.Skill, 'f', -1, 64), p.ID.String()))
 }
 
 func PersonsNextDate() {
@@ -51,7 +51,36 @@ func (p *Person) PersonListener() {
 			go p.SetDayInc()
 		case "fishing":
 			go p.setFishingResult(params[1])
+			go p.createHaul(params[1])
 		}
+	}
+}
+
+func (p *Person) getInventory() map[uuid.UUID]InventoryItem {
+	return p.Inventory
+}
+
+func (p *Person) createHaul(res string) {
+	var hauls []FishHaul
+	err := json.Unmarshal([]byte(res), &hauls)
+	if err != nil {
+		fmt.Printf("При маршалинге улова в JSON у персонажа %d произошла ошибка %s", p.ID, err)
+		return
+	}
+	for i := range hauls {
+		f := getFishByID(hauls[i].ID)
+		item := getItemPool().(*Item)
+		item.UUID = uuid.Must(uuid.NewV1())
+		item.Name = f.Name
+		item.Weight = hauls[i].Weight
+		item.Quality = hauls[i].Qaulity
+		item.Limit = 3
+		item.CreationDate = GetDate()
+		item.ExpDate = item.CreationDate + item.Limit
+		item.Object.IsCountable = true
+		item.Object.Name = "Рыба"
+		Items = append(Items, item)
+		p.Inventory[item.UUID] = InventoryItem{item.UUID, GetDate()}
 	}
 }
 
@@ -104,11 +133,39 @@ func PersonMessage(id uuid.UUID, text string) {
 
 func getPersonByUUID(id uuid.UUID) (Person, error) {
 	for i := range Persons {
-		if uuid.Equal(Persons[i].UUID, id) {
+		if uuid.Equal(Persons[i].ID, id) {
 			return Persons[i], nil
 		}
 	}
 	return Persons[0], errors.New("Такой персонаж не найдено\n")
+}
+
+func GetPersonInventory(param string) (inv []PersonInventory) {
+	inv = make([]PersonInventory, 0, 0)
+	id, err := uuid.FromString(param)
+	if err != nil {
+		fmt.Printf("При получении ID персонажа %s произошла ошибка %s", param, err)
+		return
+	}
+	p, err := getPersonByUUID(id)
+	if err != nil {
+		fmt.Printf("При получении персонажа %s произошла ошибка %s", param, err)
+		return
+	}
+	pi := p.getInventory()
+	for k, _ := range pi {
+		item := getItemByUUID(k)
+		pitem := PersonInventory{
+			item.UUID,
+			item.Name,
+			item.Weight,
+			item.Limit,
+			item.Quality,
+			item.CreationDate,
+			item.ExpDate}
+		inv = append(inv, pitem)
+	}
+	return
 }
 
 func GetRandInt(min, max int) int {
@@ -236,14 +293,14 @@ func CreatePerson(count int) {
 	for i := range Persons {
 		isMale := getRandMale()
 		Persons[i] = Person{
-			i + 1,
+			uuid.Must(uuid.NewV1()),
 			getRandName(isMale),
 			GetRandInt(18, 28),
 			isMale,
 			1,
 			1.0,
-			uuid.Must(uuid.NewV1()),
-			make(chan string, 0)}
+			make(chan string, 0),
+			make(map[uuid.UUID]InventoryItem)}
 	}
 }
 
