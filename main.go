@@ -28,6 +28,7 @@ func start() {
 	models.CreateLakes(3)
 	models.LakesStart()
 	models.PersonsStart()
+	go models.MapInitialize()
 	go models.EventLoop()
 	models.SetDate(9842)
 	models.SetCalendar()
@@ -37,7 +38,7 @@ func start() {
 func getRouter() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/ws/events/", handlers.GetWSEventsHandler)
-	router.GET("api/map", handlers.MapHandler)
+	router.GET("/api/map", handlers.MapHandler)
 	router.GET("/api/chunk/:id", handlers.ChunkHandler)
 	router.GET("/api/persons", handlers.PersonsHandler)
 	router.GET("/api/person/:id/inventory", handlers.PersonInventoryHandler)
