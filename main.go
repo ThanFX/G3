@@ -32,6 +32,7 @@ func start() {
 	go models.EventLoop()
 	models.SetDate(9842)
 	models.SetCalendar()
+	models.CreateChunk()
 	fmt.Println("Запускаем сервер...")
 }
 

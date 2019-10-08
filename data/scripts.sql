@@ -10,3 +10,5 @@ CREATE TABLE objects (
 	is_liquid INTEGER NOT NULL,
 	"limit" INTEGER
 );
+
+select * from map;

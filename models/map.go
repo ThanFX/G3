@@ -8,14 +8,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type Chunk struct {
+type Chunks struct {
 	ID            uuid.UUID   `json:"id"`
 	TerrainString string      `json:"-"`
 	Chunk         interface{} `json:"chunk"`
 }
 
 var (
-	Map []Chunk
+	Map []Chunks
 )
 
 func MapInitialize() {
@@ -26,7 +26,7 @@ func MapInitialize() {
 	}
 	defer rows.Close()
 
-	var ch Chunk
+	var ch Chunks
 	for rows.Next() {
 		err = rows.Scan(&ch.ID, &ch.TerrainString)
 		if err != nil {
@@ -45,6 +45,6 @@ func MapInitialize() {
 	fmt.Println("Карта успешно загружена")
 }
 
-func GetMap() []Chunk {
+func GetMap() []Chunks {
 	return Map
 }
