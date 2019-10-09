@@ -4,39 +4,39 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-
-	uuid "github.com/satori/go.uuid"
 )
 
+/*
 type Chunks struct {
 	ID            uuid.UUID   `json:"id"`
 	TerrainString string      `json:"-"`
 	Chunk         interface{} `json:"chunk"`
-}
+}*/
 
 var (
-	Map []Chunks
+	Map []Chunk
 )
 
 func MapInitialize() {
 	//Map = make([]Chunk, 25)
-	rows, err := DB.Query("select * from map")
+	rows, err := DB.Query("select chunk from map")
 	if err != nil {
 		log.Fatalf("Ошибка получения карты из БД: %s", err)
 	}
 	defer rows.Close()
 
-	var ch Chunks
+	var ch string
+	var chunk Chunk
 	for rows.Next() {
-		err = rows.Scan(&ch.ID, &ch.TerrainString)
+		err = rows.Scan(&ch)
 		if err != nil {
-			log.Fatal("ошибка парсинга записи чанка: ", err)
+			log.Fatal("ошибка получения записи чанка: ", err)
 		}
-		err = json.Unmarshal([]byte(ch.TerrainString), &ch.Chunk)
+		err = json.Unmarshal([]byte(ch), &chunk)
 		if err != nil {
 			log.Fatal("ошибка парсинга данных чанка: ", err)
 		}
-		Map = append(Map, ch)
+		Map = append(Map, chunk)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -45,6 +45,6 @@ func MapInitialize() {
 	fmt.Println("Карта успешно загружена")
 }
 
-func GetMap() []Chunks {
+func GetMap() []Chunk {
 	return Map
 }

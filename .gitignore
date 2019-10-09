@@ -1,5 +1,5 @@
 .idea/
-.vscode/
+.vscode/*
 Godeps/
 vendor/
 .exe
@@ -8,5 +8,3 @@ G3*
 !G3.go
 !g3.db
 projectFilesBackup*
-.vscode/tasks.json
-.vscode/tasks.json

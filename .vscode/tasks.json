@@ -6,7 +6,7 @@
         {
             "label": "Build and run",
             "type": "shell",
-            "command": "go build && ./G3",
+            "command": "go build && G3.exe",
             "group": {
                 "kind": "build",
                 "isDefault": true
