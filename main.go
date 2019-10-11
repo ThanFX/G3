@@ -24,14 +24,15 @@ var (
 
 func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	models.CreatePerson(1)
-	models.CreateLakes(3)
-	models.LakesStart()
-	models.PersonsStart()
-	go models.MapInitialize()
-	go models.EventLoop()
-	models.SetDate(9842)
-	models.SetCalendar()
+	//models.CreatePerson(1)
+	//models.CreateLakes(3)
+	//models.LakesStart()
+	//models.PersonsStart()
+	models.MapInitialize()
+	models.CreateTerrains()
+	//go models.EventLoop()
+	//models.SetDate(9842)
+	//models.SetCalendar()
 	fmt.Println("Запускаем сервер...")
 }
 

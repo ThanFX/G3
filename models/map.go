@@ -37,6 +37,9 @@ func MapInitialize() {
 			log.Fatal("ошибка парсинга данных чанка: ", err)
 		}
 		Map = append(Map, chunk)
+
+		chunk.Terrains = nil
+		chunk.Rivers = nil
 	}
 	err = rows.Err()
 	if err != nil {
