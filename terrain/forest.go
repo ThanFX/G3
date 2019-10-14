@@ -15,13 +15,13 @@ type Forests struct {
 
 var F Forests
 
-func CreateForest(chunkId uuid.UUID, size int) {
-	//fmt.Println(chunkId)
+func CreateForest(chunkId uuid.UUID, size int) uuid.UUID {
 	f := Forest{
 		Terrain{uuid.Must(uuid.NewV4()),
 			size,
 			chunkId}}
 	F.Objects = append(F.Objects, f)
+	return f.ID
 }
 
 func GetForests() []Forest {

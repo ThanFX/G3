@@ -16,13 +16,14 @@ type Rivers struct {
 
 var R Rivers
 
-func CreateRiver(chunkId uuid.UUID, size int, isBridge bool) {
+func CreateRiver(chunkId uuid.UUID, size int, isBridge bool) uuid.UUID {
 	r := River{
 		Terrain{uuid.Must(uuid.NewV4()),
 			size,
 			chunkId},
 		isBridge}
 	R.Objects = append(R.Objects, r)
+	return r.ID
 }
 
 func GetRivers() []River {

@@ -15,12 +15,13 @@ type Hills struct {
 
 var H Hills
 
-func CreateHill(chunkId uuid.UUID, size int) {
+func CreateHill(chunkId uuid.UUID, size int) uuid.UUID {
 	h := Hill{
 		Terrain{uuid.Must(uuid.NewV4()),
 			size,
 			chunkId}}
 	H.Objects = append(H.Objects, h)
+	return h.ID
 }
 
 func GetHills() []Hill {

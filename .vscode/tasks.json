@@ -6,7 +6,12 @@
         {
             "label": "Build and run",
             "type": "shell",
-            "command": "go build && ./G3",
+            "linux": {
+                "command": "go build && ./G3"
+            },
+            "windows": {
+                "command": "go build && G3.exe"
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true

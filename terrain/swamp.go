@@ -15,12 +15,13 @@ type Swamps struct {
 
 var S Swamps
 
-func CreateSwamp(chunkId uuid.UUID, size int) {
+func CreateSwamp(chunkId uuid.UUID, size int) uuid.UUID {
 	s := Swamp{
 		Terrain{uuid.Must(uuid.NewV4()),
 			size,
 			chunkId}}
 	S.Objects = append(S.Objects, s)
+	return s.ID
 }
 
 func GetSwamps() []Swamp {

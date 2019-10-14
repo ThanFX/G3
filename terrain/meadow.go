@@ -15,12 +15,13 @@ type Meadows struct {
 
 var M Meadows
 
-func CreateMeadow(chunkId uuid.UUID, size int) {
+func CreateMeadow(chunkId uuid.UUID, size int) uuid.UUID {
 	m := Meadow{
 		Terrain{uuid.Must(uuid.NewV4()),
 			size,
 			chunkId}}
 	M.Objects = append(M.Objects, m)
+	return m.ID
 }
 
 func GetMeadows() []Meadow {
