@@ -1,11 +1,11 @@
-package terrain
+package areas
 
 import (
 	uuid "github.com/satori/go.uuid"
 )
 
 type Swamp struct {
-	Terrain
+	Area
 }
 
 type Swamps struct {
@@ -17,13 +17,25 @@ var S Swamps
 
 func CreateSwamp(chunkId uuid.UUID, size int) uuid.UUID {
 	s := Swamp{
-		Terrain{uuid.Must(uuid.NewV4()),
+		Area{uuid.Must(uuid.NewV4()),
 			size,
-			chunkId}}
+			chunkId,
+			[]AreaMastery{
+				AreaMastery{GetMasteryByName("food_gathering"), 0, 0}}}}
 	S.Objects = append(S.Objects, s)
 	return s.ID
 }
 
 func GetSwamps() []Swamp {
 	return S.Objects
+}
+
+func GetSwampById(id uuid.UUID) []Swamp {
+	var s []Swamp
+	for i := range S.Objects {
+		if uuid.Equal(S.Objects[i].ID, id) {
+			s = append(s, S.Objects[i])
+		}
+	}
+	return s
 }
