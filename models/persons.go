@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"math/rand"
 	"strconv"
 	"strings"
 
+	"github.com/ThanFX/G3/libs"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -107,7 +107,7 @@ func (p *Person) setFishingResult(res string) {
 		// Берём произведение 3 и 4 - получаем базовый прирост уровня навыка за конкретную пойманую рыбу
 		dM5 := dM3 * dM4
 		//  Рандомно добавляем к этому значению от -20% до +20% - получаем итоговый прирост уровня навыка за рыбину
-		dM6 := float64(GetRandInt(0, 40)-20) / 100.0
+		dM6 := float64(libs.GetRandInt(0, 40)-20) / 100.0
 		dM7 := (dM5 + dM5*float64(dM6)) / 10
 		dM += dM7
 		//fmt.Printf("Персонаж %s поймал рыбу %s с весом %d и качеством %d\n", p.Name, f.Name, hauls[i].Weight, hauls[i].Qaulity)
@@ -168,12 +168,8 @@ func GetPersonInventory(param string) (inv []PersonInventory) {
 	return
 }
 
-func GetRandInt(min, max int) int {
-	return rand.Intn(max-min+1) + min
-}
-
 func getRandMale() bool {
-	return GetRandInt(0, 1) != 0
+	return libs.GetRandInt(0, 1) != 0
 }
 
 func getRandName(isMale bool) string {
@@ -282,9 +278,9 @@ func getRandName(isMale bool) string {
 		"Эльлан",
 		"Месил"}
 	if isMale {
-		return maleName[GetRandInt(0, len(maleName)-1)] + " " + maleSurname[GetRandInt(0, len(maleSurname)-1)]
+		return maleName[libs.GetRandInt(0, len(maleName)-1)] + " " + maleSurname[libs.GetRandInt(0, len(maleSurname)-1)]
 	}
-	return femaleName[GetRandInt(0, len(femaleName)-1)] + " " + femaleSurname[GetRandInt(0, len(femaleSurname)-1)]
+	return femaleName[libs.GetRandInt(0, len(femaleName)-1)] + " " + femaleSurname[libs.GetRandInt(0, len(femaleSurname)-1)]
 
 }
 
@@ -295,7 +291,7 @@ func CreatePerson(count int) {
 		Persons[i] = Person{
 			uuid.Must(uuid.NewV1()),
 			getRandName(isMale),
-			GetRandInt(18, 28),
+			libs.GetRandInt(18, 28),
 			isMale,
 			1,
 			1.0,

@@ -1,15 +1,15 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"strconv"
 	"strings"
+
+	"github.com/ThanFX/G3/libs"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -40,12 +40,13 @@ type Fish struct {
 }
 
 var (
-	Lakes   []Lake
-	Fishes  []Fish
-	DB      *sql.DB
+	Lakes  []Lake
+	Fishes []Fish
+	//DB      *sql.DB
 	Quality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
 )
 
+/*
 func readFishCatalog() {
 	rows, err := DB.Query("select * from fishes")
 	if err != nil {
@@ -66,6 +67,7 @@ func readFishCatalog() {
 		log.Fatal(err)
 	}
 }
+*/
 
 func getMasteryFunc(x float64) float64 {
 	res := -0.0000001329*math.Pow(x, 5) + 0.0000279284*math.Pow(x, 4) - 0.0017605406*math.Pow(x, 3) +
@@ -92,7 +94,7 @@ func GetLakes() []Lake {
 }
 
 func GetRandLakeUUID() uuid.UUID {
-	return Lakes[GetRandInt(0, len(Lakes)-1)].UUID
+	return Lakes[libs.GetRandInt(0, len(Lakes)-1)].UUID
 }
 
 func getFishByLakeSize(size int) []Fish {
@@ -112,7 +114,7 @@ func getFishNameForAreaSize(areaSize, rarity int) int {
 			fishes = append(fishes, Fishes[i])
 		}
 	}
-	return fishes[GetRandInt(0, len(fishes)-1)].ID
+	return fishes[libs.GetRandInt(0, len(fishes)-1)].ID
 }
 
 func getFishByID(id int) Fish {
@@ -169,7 +171,7 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 		if rand.Float64() < f && l.Capacity > 2 {
 			// Поймали рыбу, теперь нужно определить её параметры
 			// Считаем максимальный улов (чем выше рандом, тем выше вес)
-			randWeight := GetRandInt(1, int(math.Floor(mastery)))
+			randWeight := libs.GetRandInt(1, int(math.Floor(mastery)))
 			var haul FishHaul
 			// Максимальная масса рыбы, которую можно выловить с таким уровнем навыка и в таком озере
 			wfMax := float64(l.MaxCapacity/50) * float64(randWeight/10)
@@ -178,7 +180,7 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 			} else {
 				wfMax = math.Floor(wfMax/100) * 100
 			}
-			wf := GetRandInt(1, int(wfMax)/100) * 100
+			wf := libs.GetRandInt(1, int(wfMax)/100) * 100
 			//fmt.Printf("На тике №%d мастерство %f, поймали рыбину весом %f грамм. Шанс на вес - %d\n", i+1, mastery, wf, randWeight)
 			haul.Weight = int(wf)
 
@@ -186,7 +188,7 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 			var fishRarity = 1
 			for dice := 0; dice < int(mastery/10)+1; dice++ {
 				rar := 1
-				chance := GetRandInt(0, 1000000)
+				chance := libs.GetRandInt(0, 1000000)
 				switch {
 				case chance > 990000:
 					rar = 5
@@ -208,7 +210,7 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 			var fishQuality = 1
 			for dice := 0; dice < int(mastery/10)+1; dice++ {
 				qual := 1
-				chance := GetRandInt(0, 10000000)
+				chance := libs.GetRandInt(0, 10000000)
 				switch {
 				case chance > 9980000:
 					qual = 5
@@ -252,7 +254,7 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 func CreateLakes(count int) {
 	Lakes = make([]Lake, count)
 	for i := range Lakes {
-		size := GetRandInt(1, 5)
+		size := libs.GetRandInt(1, 5)
 		var maxCap, cap int
 		switch size {
 		case 1:
@@ -287,7 +289,7 @@ func LakesStart() {
 	for l := range Lakes {
 		go Lakes[l].lakeListener()
 	}
-	readFishCatalog()
+	//readFishCatalog()
 }
 
 func LakesNextDate() {

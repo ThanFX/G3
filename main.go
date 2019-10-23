@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ThanFX/G3/areas"
 	"github.com/ThanFX/G3/config"
 	"github.com/ThanFX/G3/handlers"
+	"github.com/ThanFX/G3/libs"
 	"github.com/ThanFX/G3/middlewares"
 	"github.com/ThanFX/G3/models"
 	"github.com/braintree/manners"
@@ -26,7 +28,7 @@ func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	//models.CreatePerson(1)
 	//models.CreateLakes(3)
-	//models.LakesStart()
+	areas.LakesStart()
 	//models.PersonsStart()
 	models.MapInitialize()
 	models.CreateTerrains()
@@ -58,6 +60,7 @@ func main() {
 	if err != nil {
 		stdlog.Printf("Ошибка открытия файла БД: %s", err)
 	}
+	libs.DB = DB
 	models.DB = DB
 	defer DB.Close()
 	start()

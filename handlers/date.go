@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/ThanFX/G3/areas"
+
 	"github.com/ThanFX/G3/models"
 	"github.com/julienschmidt/httprouter"
 )
@@ -14,6 +16,7 @@ func GetDateHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 
 func NextDateHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	models.IncDate()
+	areas.LakesNextDate()
 	//models.LakesNextDate()
 	//models.PersonsNextDate()
 	SendJsonResponse(w, r, http.StatusOK, nil, 0, "")

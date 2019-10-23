@@ -16,3 +16,25 @@ type Area struct {
 	ChunkID     uuid.UUID     `json:"-"`
 	Masterships []AreaMastery `json:"masterships"`
 }
+
+func (a *Area) getMasteryByName(mastery string) AreaMastery {
+	var am AreaMastery
+	for _, m := range a.Masterships {
+		if m.Mastership.Name == mastery {
+			am = m
+			break
+		}
+	}
+	return am
+}
+
+func (a *Area) GetLakeFishingCap() (int, int) {
+	am := a.getMasteryByName("fishing")
+	return am.Capacity, am.MaxCapacity
+}
+
+func (a *Area) SetLakeFishingCap(cap, maxCap int) {
+	am := a.getMasteryByName("fishing")
+	am.Capacity = cap
+	am.MaxCapacity = maxCap
+}

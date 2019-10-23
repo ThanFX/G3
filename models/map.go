@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -17,6 +18,7 @@ type Chunks struct {
 
 var (
 	Map []libs.Chunk
+	DB  *sql.DB
 )
 
 func MapInitialize() {
