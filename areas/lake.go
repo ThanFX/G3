@@ -2,6 +2,7 @@ package areas
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/ThanFX/G3/libs"
@@ -23,12 +24,15 @@ var (
 )
 
 func LakesStart() {
+	L.InCh = make(chan string, 0)
 	go L.lakesListener()
 	//libs.ReadFishCatalog()
 }
 
 func LakesNextDate() {
+	fmt.Println(1)
 	L.InCh <- "next"
+	fmt.Println(2)
 }
 
 func CreateLake(chunkId uuid.UUID, size int) uuid.UUID {
