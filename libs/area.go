@@ -1,4 +1,4 @@
-package areas
+package libs
 
 import (
 	uuid "github.com/satori/go.uuid"
@@ -13,6 +13,6 @@ type AreaMastery struct {
 type Area struct {
 	ID          uuid.UUID     `json:"id"`
 	Size        int           `json:"size"`
-	ChunckID    uuid.UUID     `json:"-"`
+	ChunkID     uuid.UUID     `json:"-"`
 	Masterships []AreaMastery `json:"masterships"`
 }

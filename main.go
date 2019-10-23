@@ -31,8 +31,8 @@ func start() {
 	models.MapInitialize()
 	models.CreateTerrains()
 	//go models.EventLoop()
-	//models.SetDate(9842)
-	//models.SetCalendar()
+	models.SetDate(9842)
+	models.SetCalendar()
 	fmt.Println("Запускаем сервер...")
 }
 

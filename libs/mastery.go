@@ -1,4 +1,4 @@
-package areas
+package libs
 
 type Mastery struct {
 	Name     string `json:"name"`

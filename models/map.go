@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
+	"github.com/ThanFX/G3/libs"
 )
 
 /*
@@ -14,7 +16,7 @@ type Chunks struct {
 }*/
 
 var (
-	Map []Chunk
+	Map []libs.Chunk
 )
 
 func MapInitialize() {
@@ -26,7 +28,7 @@ func MapInitialize() {
 	defer rows.Close()
 
 	var ch string
-	var chunk Chunk
+	var chunk libs.Chunk
 	for rows.Next() {
 		err = rows.Scan(&ch)
 		if err != nil {
@@ -48,6 +50,6 @@ func MapInitialize() {
 	fmt.Println("Карта успешно загружена")
 }
 
-func GetMap() []Chunk {
+func GetMap() []libs.Chunk {
 	return Map
 }

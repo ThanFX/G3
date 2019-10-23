@@ -39,7 +39,18 @@ func CreateTerrains() {
 			id := areas.CreateRiver(m.ID, r.Size, r.Bridge)
 			rs = append(rs, areas.GetRiversById(id)[0])
 		}
-		ChunkAreasInfo[m.ID]["river"] = rs
+		if len(rs) > 0 {
+			ChunkAreasInfo[m.ID]["rivers"] = rs
+		}
+
+		var ls []areas.Lake
+		for _, l := range m.Lakes {
+			id := areas.CreateLake(m.ID, l.Size)
+			ls = append(ls, areas.GetLakesById(id)[0])
+		}
+		if len(ls) > 0 {
+			ChunkAreasInfo[m.ID]["lakes"] = ls
+		}
 	}
 	//fmt.Println(ChunkAreasInfo)
 }

@@ -1,11 +1,12 @@
 package areas
 
 import (
+	"github.com/ThanFX/G3/libs"
 	uuid "github.com/satori/go.uuid"
 )
 
 type Lake struct {
-	Area
+	libs.Area
 }
 
 type Lakes struct {
@@ -17,12 +18,19 @@ var L Lakes
 
 func CreateLake(chunkId uuid.UUID, size int) uuid.UUID {
 	l := Lake{
-		Area{uuid.Must(uuid.NewV4()),
-			size,
-			chunkId,
-			[]AreaMastery{
-				AreaMastery{GetMasteryByName("hunting"), 0, 0},
-				AreaMastery{GetMasteryByName("fishing"), 0, 0}}}}
+		libs.Area{
+			ID:      uuid.Must(uuid.NewV4()),
+			Size:    size,
+			ChunkID: chunkId,
+			Masterships: []libs.AreaMastery{
+				libs.AreaMastery{
+					Mastership:  libs.GetMasteryByName("hunting"),
+					Capacity:    0,
+					MaxCapacity: 0},
+				libs.AreaMastery{
+					Mastership:  libs.GetMasteryByName("fishing"),
+					Capacity:    0,
+					MaxCapacity: 0}}}}
 	L.Objects = append(L.Objects, l)
 	return l.ID
 }

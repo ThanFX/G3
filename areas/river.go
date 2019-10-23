@@ -1,11 +1,12 @@
 package areas
 
 import (
+	"github.com/ThanFX/G3/libs"
 	uuid "github.com/satori/go.uuid"
 )
 
 type River struct {
-	Area
+	libs.Area
 	IsBribge bool
 }
 
@@ -18,11 +19,15 @@ var R Rivers
 
 func CreateRiver(chunkId uuid.UUID, size int, isBridge bool) uuid.UUID {
 	r := River{
-		Area{uuid.Must(uuid.NewV4()),
-			size,
-			chunkId,
-			[]AreaMastery{
-				AreaMastery{GetMasteryByName("fishing"), 0, 0}}},
+		libs.Area{
+			ID:      uuid.Must(uuid.NewV4()),
+			Size:    size,
+			ChunkID: chunkId,
+			Masterships: []libs.AreaMastery{
+				libs.AreaMastery{
+					Mastership:  libs.GetMasteryByName("fishing"),
+					Capacity:    0,
+					MaxCapacity: 0}}},
 		isBridge}
 	R.Objects = append(R.Objects, r)
 	return r.ID
