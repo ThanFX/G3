@@ -31,7 +31,7 @@ func CreateTerrains() {
 				ChunkAreasInfo[m.ID]["meadow"] = areas.GetMeadowById(id)
 			case "lake":
 				id := areas.CreateLake(m.ID, t.Size)
-				ChunkAreasInfo[m.ID]["lake"] = areas.GetLakesById(id)
+				ChunkAreasInfo[m.ID]["lakes"] = areas.GetLakesById(id)
 			}
 		}
 		var rs []areas.River
