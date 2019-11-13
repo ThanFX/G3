@@ -30,9 +30,7 @@ func LakesStart() {
 }
 
 func LakesNextDate() {
-	fmt.Println(1)
 	L.InCh <- "next"
-	fmt.Println(2)
 }
 
 func CreateLake(chunkId uuid.UUID, size int) uuid.UUID {
@@ -85,6 +83,7 @@ func (l *Lakes) lakesListener() {
 func (ls *Lakes) setDayInc() {
 	for _, l := range ls.Objects {
 		cap, maxCap := l.Area.GetLakeFishingCap()
+		fmt.Println(l.Area)
 		dayInc := int((maxCap - cap) / 100)
 		if dayInc < 1 {
 			dayInc = 1
@@ -95,6 +94,7 @@ func (ls *Lakes) setDayInc() {
 			cap = maxCap
 		}
 		l.Area.SetLakeFishingCap(cap, maxCap)
+		//fmt.Println(cap, maxCap)
 		//NewEvent(
 		//	fmt.Sprintf("В озере %s за день родилось %s рыбы. Всего сейчас %s рыбы.", strconv.Itoa(l.ID), strconv.Itoa(l.DayInc), strconv.Itoa(l.Capacity)))
 
