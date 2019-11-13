@@ -47,7 +47,7 @@ func ReadFishCatalog() {
 	}
 }
 
-func GetFishByLakeSize(size int) []Fish {
+func GetFishByAreaSize(size int) []Fish {
 	var f []Fish
 	for i := range Fishes {
 		if Fishes[i].Area <= size {
@@ -98,4 +98,18 @@ func GetFishingInitSize(size int) (cap, maxCap int) {
 		cap = 50000
 	}
 	return
+}
+
+func GetFishingDayInc(cap, size int) int {
+	_, maxCap := GetFishingInitSize(size)
+	dayInc := int((maxCap - cap) / 100)
+	if dayInc < 1 {
+		dayInc = 1
+	}
+	cap += dayInc
+	if cap > maxCap {
+		dayInc -= (cap - maxCap)
+		cap = maxCap
+	}
+	return cap
 }

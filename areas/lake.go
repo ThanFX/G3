@@ -2,7 +2,6 @@ package areas
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
 
 	"github.com/ThanFX/G3/libs"
@@ -74,29 +73,14 @@ func (l *Lakes) lakesListener() {
 		switch params[0] {
 		case "next":
 			go l.setDayInc()
-			//case "fishing":
-			//	go l.calcFishingResult(params[1], params[2])
 		}
 	}
 }
 
 func (ls *Lakes) setDayInc() {
 	for _, l := range ls.Objects {
-		cap, maxCap := l.Area.GetLakeFishingCap()
-		fmt.Println(l.Area)
-		dayInc := int((maxCap - cap) / 100)
-		if dayInc < 1 {
-			dayInc = 1
-		}
-		cap += dayInc
-		if cap > maxCap {
-			dayInc -= (cap - maxCap)
-			cap = maxCap
-		}
-		l.Area.SetLakeFishingCap(cap, maxCap)
-		//fmt.Println(cap, maxCap)
-		//NewEvent(
-		//	fmt.Sprintf("В озере %s за день родилось %s рыбы. Всего сейчас %s рыбы.", strconv.Itoa(l.ID), strconv.Itoa(l.DayInc), strconv.Itoa(l.Capacity)))
-
+		cap := l.Area.GetFishingCap()
+		newCap := libs.GetFishingDayInc(cap, l.Size)
+		l.Area.SetFishingCap(newCap)
 	}
 }

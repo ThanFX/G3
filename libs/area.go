@@ -17,24 +17,41 @@ type Area struct {
 	Masterships []AreaMastery `json:"masterships"`
 }
 
-func (a *Area) getMasteryByName(mastery string) AreaMastery {
-	var am AreaMastery
+func (a *Area) getMasteryByName(mastery string) *AreaMastery {
+	var am *AreaMastery
 	for _, m := range a.Masterships {
-		if m.Mastership.Name == mastery {
-			am = m
+		if m.Mastership.NameID == mastery {
+			am = &m
 			break
 		}
 	}
 	return am
 }
 
-func (a *Area) GetLakeFishingCap() (int, int) {
+func (a *Area) GetFishingCap() int {
 	am := a.getMasteryByName("fishing")
-	return am.Capacity, am.MaxCapacity
+	return am.Capacity
 }
 
-func (a *Area) SetLakeFishingCap(cap, maxCap int) {
-	am := a.getMasteryByName("fishing")
-	am.Capacity = cap
-	am.MaxCapacity = maxCap
+func (a *Area) GetHuntingCap() int {
+	am := a.getMasteryByName("hunting")
+	return am.Capacity
+}
+
+func (a *Area) SetFishingCap(cap int) {
+	for i, m := range a.Masterships {
+		if m.Mastership.NameID == "fishing" {
+			a.Masterships[i].Capacity = cap
+			break
+		}
+	}
+}
+
+func (a *Area) SetHuntingCap(cap int) {
+	for i, m := range a.Masterships {
+		if m.Mastership.NameID == "hunting" {
+			a.Masterships[i].Capacity = cap
+			break
+		}
+	}
 }
