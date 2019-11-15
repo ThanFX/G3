@@ -4,58 +4,63 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"strings"
 
 	"github.com/ThanFX/G3/libs"
 	uuid "github.com/satori/go.uuid"
 )
 
+type PersonMastery struct {
+	Mastery libs.Mastery
+	Skill   float64
+}
+
 type Person struct {
-	ID        uuid.UUID
-	Name      string
-	Birth     int
-	IsMale    bool
-	Chunk     int
-	Skill     float64
-	InCh      chan string                 `json:"-"`
-	Inventory map[uuid.UUID]InventoryItem `json:"-"`
+	ID         uuid.UUID                   `json:"id"`
+	Name       string                      `json:"name"`
+	Age        int                         `json:"age"`
+	IsMale     bool                        `json:"is_male"`
+	Chunk      uuid.UUID                   `json:"chunk_id"`
+	InCh       chan string                 `json:"-"`
+	Inventory  map[uuid.UUID]InventoryItem `json:"inventory"`
+	Mastership []PersonMastery             `json:"mastership"`
 }
 
 var Persons []Person
 
+/*
 func (p *Person) SetDayInc() {
 	lakeUUID := GetRandLakeUUID()
 	LakeMessage(lakeUUID, fmt.Sprintf("fishing|%s|%s", strconv.FormatFloat(p.Skill, 'f', -1, 64), p.ID.String()))
 }
-
+*/
 func PersonsNextDate() {
 	for i := range Persons {
 		Persons[i].InCh <- "next"
 	}
 }
 
+/*
 func PersonsStart() {
 	for i := range Persons {
 		go Persons[i].PersonListener()
 	}
 }
-
+*/
+/*
 func (p *Person) PersonListener() {
 	for {
 		com := <-p.InCh
 		params := strings.Split(com, "|")
 		switch params[0] {
 		case "next":
-			go p.SetDayInc()
+			//go p.SetDayInc()
 		case "fishing":
 			go p.setFishingResult(params[1])
 			go p.createHaul(params[1])
 		}
 	}
 }
-
+*/
 func (p *Person) getInventory() map[uuid.UUID]InventoryItem {
 	return p.Inventory
 }
@@ -84,6 +89,7 @@ func (p *Person) createHaul(res string) {
 	}
 }
 
+/*
 func (p *Person) setFishingResult(res string) {
 	var (
 		hauls []FishHaul
@@ -121,7 +127,7 @@ func (p *Person) setFishingResult(res string) {
 	}
 	NewEvent(fmt.Sprintf("Персонаж %s выловил %d рыбы и получил прирост навыка рыбалки на %f. Текущее значение навыка - %f", p.Name, len(hauls), dM, p.Skill))
 }
-
+*/
 func PersonMessage(id uuid.UUID, text string) {
 	p, err := getPersonByUUID(id)
 	if err != nil {
@@ -284,20 +290,79 @@ func getRandName(isMale bool) string {
 
 }
 
-func CreatePerson(count int) {
-	Persons = make([]Person, count)
-	for i := range Persons {
-		isMale := getRandMale()
-		Persons[i] = Person{
-			uuid.Must(uuid.NewV1()),
-			getRandName(isMale),
-			libs.GetRandInt(18, 28),
-			isMale,
-			1,
-			1.0,
-			make(chan string, 0),
-			make(map[uuid.UUID]InventoryItem)}
-	}
+func CreatePerson() {
+	Persons = make([]Person, 3)
+	/*
+		for i := range Persons {
+			isMale := getRandMale()
+			Persons[i] = Person{
+				uuid.Must(uuid.NewV1()),
+				getRandName(isMale),
+				libs.GetRandInt(18, 28),
+				isMale,
+				1,
+				1.0,
+				make(chan string, 0),
+				make(map[uuid.UUID]InventoryItem)}
+		}*/
+	Persons = []Person{
+		Person{
+			ID:        uuid.Must(uuid.NewV1()),
+			Name:      "Эльсил Осландор",
+			Age:       31,
+			IsMale:    true,
+			Chunk:     uuid.Must(uuid.FromString("36104469-81e8-4896-9790-4828c65e913c")),
+			InCh:      make(chan string, 0),
+			Inventory: make(map[uuid.UUID]InventoryItem),
+			Mastership: []PersonMastery{
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("fishing"),
+					Skill:   25},
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("hunting"),
+					Skill:   10},
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("food_gathering"),
+					Skill:   15},
+			}},
+		Person{
+			ID:        uuid.Must(uuid.NewV1()),
+			Name:      "Георгил Герон",
+			Age:       16,
+			IsMale:    true,
+			Chunk:     uuid.Must(uuid.FromString("bfff4f61-aae3-4fb6-b2f9-84e4638e270a")),
+			InCh:      make(chan string, 0),
+			Inventory: make(map[uuid.UUID]InventoryItem),
+			Mastership: []PersonMastery{
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("fishing"),
+					Skill:   15},
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("hunting"),
+					Skill:   5},
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("food_gathering"),
+					Skill:   5},
+			}},
+		Person{
+			ID:        uuid.Must(uuid.NewV1()),
+			Name:      "Фарибар Тартелидил",
+			Age:       54,
+			IsMale:    true,
+			Chunk:     uuid.Must(uuid.FromString("36104469-81e8-4896-9790-4828c65e913c")),
+			InCh:      make(chan string, 0),
+			Inventory: make(map[uuid.UUID]InventoryItem),
+			Mastership: []PersonMastery{
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("fishing"),
+					Skill:   41},
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("hunting"),
+					Skill:   16},
+				PersonMastery{
+					Mastery: libs.GetMasteryByName("food_gathering"),
+					Skill:   19},
+			}}}
 }
 
 func GetPersons() []Person {

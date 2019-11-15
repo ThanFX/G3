@@ -2,7 +2,7 @@ package libs
 
 type Mastery struct {
 	Name     string `json:"name"`
-	NameID   string `json:"-"`
+	NameID   string `json:"id"`
 	MinValue int    `json:"-"`
 	MaxValue int    `json:"-"`
 }
