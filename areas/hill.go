@@ -1,6 +1,8 @@
 package areas
 
 import (
+	"strings"
+
 	"github.com/ThanFX/G3/libs"
 	uuid "github.com/satori/go.uuid"
 )
@@ -16,7 +18,18 @@ type Hills struct {
 
 var H Hills
 
+func HillsStart() {
+	H.InCh = make(chan string, 0)
+	go H.hillsListener()
+}
+
+func HillsNextDate() {
+	H.InCh <- "next"
+}
+
 func CreateHill(chunkId uuid.UUID, size int) uuid.UUID {
+	hcap, hmaxCap := libs.GetHuntingInitSize(size)
+	fgcap, fgmaxCap := libs.GetFoodGatheringInitSize(size)
 	h := Hill{
 		libs.Area{
 			ID:      uuid.Must(uuid.NewV4()),
@@ -25,12 +38,12 @@ func CreateHill(chunkId uuid.UUID, size int) uuid.UUID {
 			Masterships: []libs.AreaMastery{
 				libs.AreaMastery{
 					Mastership:  libs.GetMasteryByName("hunting"),
-					Capacity:    0,
-					MaxCapacity: 0},
+					Capacity:    hcap,
+					MaxCapacity: hmaxCap},
 				libs.AreaMastery{
 					Mastership:  libs.GetMasteryByName("food_gathering"),
-					Capacity:    0,
-					MaxCapacity: 0}}}}
+					Capacity:    fgcap,
+					MaxCapacity: fgmaxCap}}}}
 	H.Objects = append(H.Objects, h)
 	return h.ID
 }
@@ -48,4 +61,21 @@ func GetHillsById(id uuid.UUID) Hill {
 		}
 	}
 	return h
+}
+
+func (h *Hills) hillsListener() {
+	for {
+		com := <-h.InCh
+		params := strings.Split(com, "|")
+		switch params[0] {
+		case "next":
+			go h.setDayInc()
+		}
+	}
+}
+
+func (hs *Hills) setDayInc() {
+	for _, h := range hs.Objects {
+		h.Area.SetDayIncCapacity()
+	}
 }

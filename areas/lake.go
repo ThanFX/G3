@@ -1,7 +1,6 @@
 package areas
 
 import (
-	"database/sql"
 	"strings"
 
 	"github.com/ThanFX/G3/libs"
@@ -18,14 +17,12 @@ type Lakes struct {
 }
 
 var (
-	L  Lakes
-	DB *sql.DB
+	L Lakes
 )
 
 func LakesStart() {
 	L.InCh = make(chan string, 0)
 	go L.lakesListener()
-	//libs.ReadFishCatalog()
 }
 
 func LakesNextDate() {
@@ -33,7 +30,8 @@ func LakesNextDate() {
 }
 
 func CreateLake(chunkId uuid.UUID, size int) uuid.UUID {
-	cap, maxCap := libs.GetFishingInitSize(size)
+	hcap, hmaxCap := libs.GetHuntingInitSize(size)
+	fcap, fmaxCap := libs.GetFishingInitSize(size)
 	l := Lake{
 		libs.Area{
 			ID:      uuid.Must(uuid.NewV4()),
@@ -42,12 +40,12 @@ func CreateLake(chunkId uuid.UUID, size int) uuid.UUID {
 			Masterships: []libs.AreaMastery{
 				libs.AreaMastery{
 					Mastership:  libs.GetMasteryByName("hunting"),
-					Capacity:    0,
-					MaxCapacity: 0},
+					Capacity:    hcap,
+					MaxCapacity: hmaxCap},
 				libs.AreaMastery{
 					Mastership:  libs.GetMasteryByName("fishing"),
-					Capacity:    cap,
-					MaxCapacity: maxCap}}}}
+					Capacity:    fcap,
+					MaxCapacity: fmaxCap}}}}
 	L.Objects = append(L.Objects, l)
 	return l.ID
 }
@@ -79,8 +77,6 @@ func (l *Lakes) lakesListener() {
 
 func (ls *Lakes) setDayInc() {
 	for _, l := range ls.Objects {
-		cap := l.Area.GetFishingCap()
-		newCap := libs.GetFishingDayInc(cap, l.Size)
-		l.Area.SetFishingCap(newCap)
+		l.Area.SetDayIncCapacity()
 	}
 }

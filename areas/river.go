@@ -72,8 +72,6 @@ func (r *Rivers) riversListener() {
 
 func (rs *Rivers) setDayInc() {
 	for _, r := range rs.Objects {
-		cap := r.Area.GetFishingCap()
-		newCap := libs.GetFishingDayInc(cap, r.Size)
-		r.Area.SetFishingCap(newCap)
+		r.Area.SetDayIncCapacity()
 	}
 }

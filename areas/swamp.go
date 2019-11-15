@@ -1,6 +1,8 @@
 package areas
 
 import (
+	"strings"
+
 	"github.com/ThanFX/G3/libs"
 	uuid "github.com/satori/go.uuid"
 )
@@ -16,7 +18,17 @@ type Swamps struct {
 
 var S Swamps
 
+func SwampsStart() {
+	S.InCh = make(chan string, 0)
+	go S.swampsListener()
+}
+
+func SwampsNextDate() {
+	S.InCh <- "next"
+}
+
 func CreateSwamp(chunkId uuid.UUID, size int) uuid.UUID {
+	fgcap, fgmaxCap := libs.GetFoodGatheringInitSize(size)
 	s := Swamp{
 		libs.Area{
 			ID:      uuid.Must(uuid.NewV4()),
@@ -25,8 +37,8 @@ func CreateSwamp(chunkId uuid.UUID, size int) uuid.UUID {
 			Masterships: []libs.AreaMastery{
 				libs.AreaMastery{
 					Mastership:  libs.GetMasteryByName("food_gathering"),
-					Capacity:    0,
-					MaxCapacity: 0}}}}
+					Capacity:    fgcap,
+					MaxCapacity: fgmaxCap}}}}
 	S.Objects = append(S.Objects, s)
 	return s.ID
 }
@@ -44,4 +56,21 @@ func GetSwampById(id uuid.UUID) Swamp {
 		}
 	}
 	return s
+}
+
+func (s *Swamps) swampsListener() {
+	for {
+		com := <-s.InCh
+		params := strings.Split(com, "|")
+		switch params[0] {
+		case "next":
+			go s.setDayInc()
+		}
+	}
+}
+
+func (ss *Swamps) setDayInc() {
+	for _, s := range ss.Objects {
+		s.Area.SetDayIncCapacity()
+	}
 }

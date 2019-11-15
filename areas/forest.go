@@ -29,7 +29,8 @@ func ForestsNextDate() {
 }
 
 func CreateForest(chunkId uuid.UUID, size int) uuid.UUID {
-	cap, maxCap := libs.GetHuntingInitSize(size)
+	hcap, hmaxCap := libs.GetHuntingInitSize(size)
+	fgcap, fgmaxCap := libs.GetFoodGatheringInitSize(size)
 	f := Forest{
 		libs.Area{
 			ID:      uuid.Must(uuid.NewV4()),
@@ -38,12 +39,12 @@ func CreateForest(chunkId uuid.UUID, size int) uuid.UUID {
 			Masterships: []libs.AreaMastery{
 				libs.AreaMastery{
 					Mastership:  libs.GetMasteryByName("hunting"),
-					Capacity:    cap,
-					MaxCapacity: maxCap},
+					Capacity:    hcap,
+					MaxCapacity: hmaxCap},
 				libs.AreaMastery{
 					Mastership:  libs.GetMasteryByName("food_gathering"),
-					Capacity:    0,
-					MaxCapacity: 0}}}}
+					Capacity:    fgcap,
+					MaxCapacity: fgmaxCap}}}}
 	F.Objects = append(F.Objects, f)
 	return f.ID
 }
@@ -76,8 +77,6 @@ func (f *Forests) forestsListener() {
 
 func (fs *Forests) setDayInc() {
 	for _, f := range fs.Objects {
-		cap := f.Area.GetHuntingCap()
-		newCap := libs.GetHuntingDayInc(cap, f.Size)
-		f.Area.SetHuntingCap(newCap)
+		f.Area.SetDayIncCapacity()
 	}
 }
