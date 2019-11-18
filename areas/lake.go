@@ -54,11 +54,12 @@ func GetLakes() []Lake {
 	return L.Objects
 }
 
-func GetLakesById(id uuid.UUID) []Lake {
-	var l []Lake
+func GetLakesById(id uuid.UUID) Lake {
+	var l Lake
 	for i := range L.Objects {
 		if uuid.Equal(L.Objects[i].ID, id) {
-			l = append(l, L.Objects[i])
+			l = L.Objects[i]
+			break
 		}
 	}
 	return l
