@@ -26,11 +26,11 @@ var (
 
 func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	models.CreatePerson()
 	//models.PersonsStart()
 	models.MapInitialize()
 	models.CreateTerrains()
 	areas.AreasStart()
+	models.CreatePerson()
 	//go models.EventLoop()
 	models.SetDate(9842)
 	models.SetCalendar()

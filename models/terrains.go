@@ -8,9 +8,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var ChunkAreasInfo map[uuid.UUID]map[string]interface{}
+var (
+	ChunkMasteryInfo map[uuid.UUID]map[string]interface{}
+	ChunkAreasInfo   map[uuid.UUID]map[string]interface{}
+)
 
 func CreateTerrains() {
+	ChunkMasteryInfo = make(map[uuid.UUID]map[string]interface{})
 	ChunkAreasInfo = make(map[uuid.UUID]map[string]interface{})
 	for _, m := range Map {
 		ChunkAreasInfo[m.ID] = make(map[string]interface{})
@@ -51,6 +55,11 @@ func CreateTerrains() {
 		if len(ls) > 0 {
 			ChunkAreasInfo[m.ID]["lakes"] = ls
 		}
+
+		ChunkMasteryInfo[m.ID] = make(map[string]interface{})
+		for k, v := range ChunkAreasInfo[m.ID] {
+			fmt.Println(v)
+		}
 	}
 	//fmt.Println(ChunkAreasInfo)
 }
@@ -62,4 +71,8 @@ func GetChunkTerrainsInfo(param string) map[string]interface{} {
 		return nil
 	}
 	return ChunkAreasInfo[chunkId]
+}
+
+func GetChunckAreasMastery(chunkId uuid.UUID, mastery string) {
+	fmt.Println(ChunkMasteryInfo[chunkId])
 }

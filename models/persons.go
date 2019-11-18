@@ -363,6 +363,9 @@ func CreatePerson() {
 					Mastery: libs.GetMasteryByName("food_gathering"),
 					Skill:   19},
 			}}}
+	for i := range Persons {
+		GetChunckAreasMastery(Persons[i].Chunk, "")
+	}
 }
 
 func GetPersons() []Person {
