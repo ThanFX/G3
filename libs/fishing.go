@@ -81,21 +81,20 @@ func GetFishByID(id int) Fish {
 func GetFishingInitSize(size int) (cap, maxCap int) {
 	switch size {
 	case 1:
-		maxCap = 5000
-		cap = 2500
-	case 2:
-		maxCap = 10000
 		cap = 5000
-	case 3:
-		maxCap = 20000
+		maxCap = 5000
+	case 2:
 		cap = 10000
+		maxCap = 10000
+	case 3:
+		cap = 20000
+		maxCap = 20000
 	case 4:
-		maxCap = 50000
-		cap = 25000
-
-	case 5:
-		maxCap = 100000
 		cap = 50000
+		maxCap = 50000
+	case 5:
+		cap = 100000
+		maxCap = 100000
 	}
 	return
 }

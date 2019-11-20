@@ -3,20 +3,20 @@ package libs
 func GetHuntingInitSize(size int) (cap, maxCap int) {
 	switch size {
 	case 1:
-		cap = 5
+		cap = 25
 		maxCap = 25
 	case 2:
-		cap = 10
+		cap = 50
 		maxCap = 50
 	case 3:
-		cap = 20
+		cap = 100
 		maxCap = 100
 	case 4:
-		cap = 50
+		cap = 250
 		maxCap = 250
 
 	case 5:
-		cap = 100
+		cap = 500
 		maxCap = 500
 	}
 	return

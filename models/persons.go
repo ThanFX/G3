@@ -325,7 +325,8 @@ func CreatePerson() {
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("food_gathering"),
 					Skill:   15},
-			}},
+			},
+			CurAction: "waiting"},
 		Person{
 			ID:        uuid.Must(uuid.NewV1()),
 			Name:      "Георгил Герон",
@@ -344,7 +345,8 @@ func CreatePerson() {
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("food_gathering"),
 					Skill:   5},
-			}},
+			},
+			CurAction: "waiting"},
 		Person{
 			ID:        uuid.Must(uuid.NewV1()),
 			Name:      "Фарибар Тартелидил",
@@ -363,9 +365,11 @@ func CreatePerson() {
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("food_gathering"),
 					Skill:   19},
-			}}}
+			},
+			CurAction: "waiting"}}
 	for i := range Persons {
 		am := GetChunckAreasMastery(Persons[i].Chunk)
+		fmt.Println(am)
 	}
 }
 
