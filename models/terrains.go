@@ -8,7 +8,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type AreaMasrery struct {
+type AreaMastery struct {
 	Name   string
 	AreaID uuid.UUID
 	Size   int
@@ -24,13 +24,13 @@ type AreaInfo struct {
 }
 
 var (
-	ChunkMasteryInfo map[uuid.UUID]map[string]interface{}
+	ChunkMasteryInfo map[uuid.UUID]map[string][]AreaMastery
 	ChunkAreasInfo   map[uuid.UUID]map[string]interface{}
 	ChunkAreasInfoEx map[uuid.UUID]AreaInfo
 )
 
 func CreateTerrains() {
-	ChunkMasteryInfo = make(map[uuid.UUID]map[string]interface{})
+	ChunkMasteryInfo = make(map[uuid.UUID]map[string][]AreaMastery)
 	ChunkAreasInfo = make(map[uuid.UUID]map[string]interface{})
 	ChunkAreasInfoEx = make(map[uuid.UUID]AreaInfo)
 	for _, m := range Map {
@@ -83,17 +83,70 @@ func CreateTerrains() {
 		*/
 
 		ChunkAreasInfoEx[m.ID] = ai
-		fmt.Println(ai)
+		//fmt.Println(ai)
 
-		/*
-			ChunkMasteryInfo[m.ID] = make(map[string]interface{})
-			for k, v := range ChunkAreasInfo[m.ID] {
-				fmt.Println(k)
-				fmt.Println(v)
+		ChunkMasteryInfo[m.ID] = make(map[string][]AreaMastery)
+		if !uuid.Equal(ChunkAreasInfoEx[m.ID].Forest.ID, uuid.Nil) {
+			for _, v := range ChunkAreasInfoEx[m.ID].Forest.Masterships {
+				var am AreaMastery
+				am.Name = "forest"
+				am.Size = ChunkAreasInfoEx[m.ID].Forest.Size
+				am.AreaID = ChunkAreasInfoEx[m.ID].Forest.ID
+				ChunkMasteryInfo[m.ID][v.Mastership.NameID] = append(ChunkMasteryInfo[m.ID][v.Mastership.NameID], am)
 			}
-		*/
+		}
+		if !uuid.Equal(ChunkAreasInfoEx[m.ID].Hill.ID, uuid.Nil) {
+			for _, v := range ChunkAreasInfoEx[m.ID].Hill.Masterships {
+				var am AreaMastery
+				am.Name = "hill"
+				am.Size = ChunkAreasInfoEx[m.ID].Hill.Size
+				am.AreaID = ChunkAreasInfoEx[m.ID].Hill.ID
+				ChunkMasteryInfo[m.ID][v.Mastership.NameID] = append(ChunkMasteryInfo[m.ID][v.Mastership.NameID], am)
+			}
+		}
+		if !uuid.Equal(ChunkAreasInfoEx[m.ID].Swamp.ID, uuid.Nil) {
+			for _, v := range ChunkAreasInfoEx[m.ID].Swamp.Masterships {
+				var am AreaMastery
+				am.Name = "swamp"
+				am.Size = ChunkAreasInfoEx[m.ID].Swamp.Size
+				am.AreaID = ChunkAreasInfoEx[m.ID].Swamp.ID
+				ChunkMasteryInfo[m.ID][v.Mastership.NameID] = append(ChunkMasteryInfo[m.ID][v.Mastership.NameID], am)
+			}
+		}
+		if !uuid.Equal(ChunkAreasInfoEx[m.ID].Meadow.ID, uuid.Nil) {
+			for _, v := range ChunkAreasInfoEx[m.ID].Meadow.Masterships {
+				var am AreaMastery
+				am.Name = "meadow"
+				am.Size = ChunkAreasInfoEx[m.ID].Meadow.Size
+				am.AreaID = ChunkAreasInfoEx[m.ID].Meadow.ID
+				ChunkMasteryInfo[m.ID][v.Mastership.NameID] = append(ChunkMasteryInfo[m.ID][v.Mastership.NameID], am)
+			}
+		}
+		if !uuid.Equal(ChunkAreasInfoEx[m.ID].Lake.ID, uuid.Nil) {
+			for _, v := range ChunkAreasInfoEx[m.ID].Lake.Masterships {
+				var am AreaMastery
+				am.Name = "lake"
+				am.Size = ChunkAreasInfoEx[m.ID].Lake.Size
+				am.AreaID = ChunkAreasInfoEx[m.ID].Lake.ID
+				ChunkMasteryInfo[m.ID][v.Mastership.NameID] = append(ChunkMasteryInfo[m.ID][v.Mastership.NameID], am)
+			}
+		}
+		if len(ChunkAreasInfoEx[m.ID].Rivers) > 0 && !uuid.Equal(ChunkAreasInfoEx[m.ID].Rivers[0].ID, uuid.Nil) {
+			for _, v := range ChunkAreasInfoEx[m.ID].Rivers {
+				for _, vr := range v.Masterships {
+					var am AreaMastery
+					am.Name = "river"
+					am.Size = v.Size
+					am.AreaID = v.ID
+					ChunkMasteryInfo[m.ID][vr.Mastership.NameID] = append(ChunkMasteryInfo[m.ID][vr.Mastership.NameID], am)
+
+				}
+
+			}
+
+		}
 	}
-	//fmt.Println(ChunkAreasInfo)
+	//fmt.Println(ChunkMasteryInfo)
 }
 
 func GetChunkTerrainsInfo(param string) map[string]interface{} {
@@ -105,6 +158,6 @@ func GetChunkTerrainsInfo(param string) map[string]interface{} {
 	return ChunkAreasInfo[chunkId]
 }
 
-func GetChunckAreasMastery(chunkId uuid.UUID, mastery string) {
-	//fmt.Println(ChunkMasteryInfo[chunkId])
+func GetChunckAreasMastery(chunkId uuid.UUID) map[string][]AreaMastery {
+	return ChunkMasteryInfo[chunkId]
 }

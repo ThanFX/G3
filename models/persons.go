@@ -23,6 +23,7 @@ type Person struct {
 	InCh       chan string                 `json:"-"`
 	Inventory  map[uuid.UUID]InventoryItem `json:"inventory"`
 	Mastership []PersonMastery             `json:"mastership"`
+	CurAction  string                      `json:"action"`
 }
 
 var Persons []Person
@@ -364,7 +365,7 @@ func CreatePerson() {
 					Skill:   19},
 			}}}
 	for i := range Persons {
-		GetChunckAreasMastery(Persons[i].Chunk, "")
+		am := GetChunckAreasMastery(Persons[i].Chunk)
 	}
 }
 
