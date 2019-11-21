@@ -312,7 +312,7 @@ func CreatePerson() {
 			Name:      "Эльсил Осландор",
 			Age:       31,
 			IsMale:    true,
-			Chunk:     uuid.Must(uuid.FromString("36104469-81e8-4896-9790-4828c65e913c")),
+			Chunk:     uuid.Must(uuid.FromString("e40a66c8-f319-497f-878e-2e1d7475c225")),
 			InCh:      make(chan string, 0),
 			Inventory: make(map[uuid.UUID]InventoryItem),
 			Mastership: []PersonMastery{
@@ -321,10 +321,10 @@ func CreatePerson() {
 					Skill:   25},
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("hunting"),
-					Skill:   10},
+					Skill:   15},
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("food_gathering"),
-					Skill:   15},
+					Skill:   10},
 			},
 			CurAction: "waiting"},
 		Person{
@@ -344,7 +344,7 @@ func CreatePerson() {
 					Skill:   5},
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("food_gathering"),
-					Skill:   5},
+					Skill:   7},
 			},
 			CurAction: "waiting"},
 		Person{
@@ -368,9 +368,35 @@ func CreatePerson() {
 			},
 			CurAction: "waiting"}}
 	for i := range Persons {
-		am := GetChunckAreasMastery(Persons[i].Chunk)
-		fmt.Println(am)
+		Persons[i].setDayMastery()
 	}
+}
+
+func (p *Person) setDayMastery() {
+	var pm map[string]AreaMastery = make(map[string]AreaMastery)
+	areaMast := GetChunckAreasMastery(p.Chunk)
+	var dayMastery string
+	dayMasteryIndex := 0.0
+	for _, m := range p.Mastership {
+		for k := range areaMast {
+			if k == m.Mastery.NameID {
+				s := 0
+				var am AreaMastery
+				for i := range areaMast[k] {
+					if s < areaMast[k][i].Size {
+						am = areaMast[k][i]
+						s = areaMast[k][i].Size
+					}
+				}
+				pm[k] = am
+			}
+		}
+		if dayMasteryIndex < float64(pm[m.Mastery.NameID].Size)*m.Skill {
+			dayMasteryIndex = float64(pm[m.Mastery.NameID].Size) * m.Skill
+			dayMastery = m.Mastery.NameID
+		}
+	}
+	p.CurAction = dayMastery
 }
 
 func GetPersons() []Person {
