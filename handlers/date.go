@@ -15,8 +15,8 @@ func GetDateHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 func NextDateHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	models.IncDate()
 	areas.AreasNextDate()
-	//models.PersonsNextDate()
+	models.PersonsNextDate()
+	models.IncDate()
 	SendJsonResponse(w, r, http.StatusOK, nil, 0, "")
 }

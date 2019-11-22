@@ -46,29 +46,6 @@ var (
 	Quality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
 )
 
-/*
-func readFishCatalog() {
-	rows, err := DB.Query("select * from fishes")
-	if err != nil {
-		log.Fatalf("Ошибка получения рыб из БД: %s", err)
-	}
-	defer rows.Close()
-
-	var f Fish
-	for rows.Next() {
-		err = rows.Scan(&f.ID, &f.Name, &f.Rarity, &f.IsLake, &f.IsRiver, &f.Area)
-		if err != nil {
-			log.Fatal("ошибка парсинга записи о рыбе: ", err)
-		}
-		Fishes = append(Fishes, f)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-*/
-
 func getMasteryFunc(x float64) float64 {
 	res := -0.0000001329*math.Pow(x, 5) + 0.0000279284*math.Pow(x, 4) - 0.0017605406*math.Pow(x, 3) +
 		0.0339750737*math.Pow(x, 2) + 0.599870964*x + 1.1256425921

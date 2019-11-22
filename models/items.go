@@ -74,7 +74,7 @@ func (item *Item) Reset() {
 }
 
 // Возвращаем ненужный экземпляр предмета в пул аллоцированной памяти
-func putItemToPool(item Item) {
+func putItemToPool(item *Item) {
 	item.Reset()
 	itemPool.Put(item)
 }
