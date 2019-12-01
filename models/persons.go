@@ -10,16 +10,16 @@ import (
 )
 
 type PersonMastery struct {
-	Mastery libs.Mastery
-	Skill   float64
+	Mastery libs.Mastery `json:"mastery"`
+	Skill   float64      `json:"skill"`
 }
 
 type PersonDayAction struct {
-	Action   string `json:"action"`
-	AreaType string
-	AreaSize int
-	AreaID   uuid.UUID
-	Today    int
+	Action   string    `json:"action"`
+	AreaType string    `json:"-"`
+	AreaSize int       `json:"-"`
+	AreaID   uuid.UUID `json:"-"`
+	Today    int       `json:"-"`
 }
 
 type Person struct {
@@ -105,10 +105,10 @@ func (p *Person) createFishingHaul(hauls []libs.FishHaul) {
 }
 
 func (p *Person) removeRottingItems() {
-	for i := range p.Inventory {
-		if p.Inventory[i].ExpDate < GetDate() {
-			item := getItemByUUID(p.Inventory[i].ID)
-			delete(p.Inventory, item.UUID)
+	for key := range p.Inventory {
+		if p.Inventory[key].ExpDate < GetDate() {
+			item := getItemByUUID(p.Inventory[key].ID)
+			delete(p.Inventory, key)
 			putItemToPool(item)
 		}
 	}

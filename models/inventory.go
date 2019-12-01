@@ -8,11 +8,11 @@ type InventoryItem struct {
 }
 
 type PersonInventory struct {
-	ID           uuid.UUID
-	Name         string
-	Weight       int
-	Limit        int
-	Quality      int
-	CreationDate int
-	ExpDate      int
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Weight       int       `json:"weight"`
+	Limit        int       `json:"limit"`
+	Quality      int       `json:"quality"`
+	CreationDate int       `json:"creation_date"`
+	ExpDate      int       `json:"expiration_date"`
 }
