@@ -70,7 +70,7 @@ func (p *Person) PersonListener() {
 		params := strings.Split(com, "|")
 		switch params[0] {
 		case "next":
-			go p.SetDayInc()
+			p.SetDayInc()
 		}
 	}
 }
