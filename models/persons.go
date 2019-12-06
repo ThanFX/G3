@@ -81,26 +81,29 @@ func (p *Person) getInventory() map[uuid.UUID]PersonInventory {
 
 func (p *Person) createFishingHaul(hauls []libs.FishHaul) {
 	for i := range hauls {
-		f := libs.GetFishByID(hauls[i].ID)
+		f := libs.GetMasteryItemByID(hauls[i].ID)
 		item := getItemPool().(*Item)
 		item.UUID = uuid.Must(uuid.NewV1())
 		item.Name = f.Name
 		item.Weight = hauls[i].Weight
 		item.Quality = hauls[i].Qaulity
-		item.Limit = 3
+		item.Limit = f.LimitDay
 		item.CreationDate = p.DayAction.Today
 		item.ExpDate = item.CreationDate + item.Limit
-		item.Object.IsCountable = true
-		item.Object.Name = "Рыба"
+		item.IsCountable = f.IsCountable
+		item.Object.IsCountable = item.IsCountable
+		item.Object.Name = f.Category
 		Items = append(Items, item)
 		p.Inventory[item.UUID] = PersonInventory{
-			item.UUID,
-			item.Name,
-			item.Weight,
-			item.Limit,
-			item.Quality,
-			item.CreationDate,
-			item.ExpDate}
+			ID:           item.UUID,
+			Name:         item.Name,
+			Category:     f.Category,
+			Weight:       item.Weight,
+			Limit:        item.Limit,
+			Quality:      item.Quality,
+			CreationDate: item.CreationDate,
+			ExpDate:      item.ExpDate,
+			IsCountable:  f.IsCountable}
 	}
 }
 
@@ -198,13 +201,15 @@ func GetPersonInventory(param string) (inv []PersonInventory) {
 	for k, _ := range pi {
 		item := getItemByUUID(k)
 		pitem := PersonInventory{
-			item.UUID,
-			item.Name,
-			item.Weight,
-			item.Limit,
-			item.Quality,
-			item.CreationDate,
-			item.ExpDate}
+			ID:           item.UUID,
+			Name:         item.Name,
+			Category:     item.Object.Name,
+			Weight:       item.Weight,
+			Limit:        item.Limit,
+			Quality:      item.Quality,
+			CreationDate: item.CreationDate,
+			ExpDate:      item.ExpDate,
+			IsCountable:  item.Object.IsCountable}
 		inv = append(inv, pitem)
 	}
 	return

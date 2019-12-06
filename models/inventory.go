@@ -15,4 +15,6 @@ type PersonInventory struct {
 	Quality      int       `json:"quality"`
 	CreationDate int       `json:"creation_date"`
 	ExpDate      int       `json:"expiration_date"`
+	Category     string    `json:"category"`
+	IsCountable  bool      `json:"is_countable"`
 }

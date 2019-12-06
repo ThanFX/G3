@@ -33,7 +33,7 @@ func start() {
 	areas.AreasStart()
 	models.CreatePerson()
 	models.PersonsStart()
-	libs.ReadFishCatalog()
+	libs.ReadMateryItemsCatalog()
 	//go models.EventLoop()
 	fmt.Println("Запускаем сервер...")
 }

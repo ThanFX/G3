@@ -1,25 +1,20 @@
 package models
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"math"
-	"math/rand"
-	"strconv"
 	"strings"
-
-	"github.com/ThanFX/G3/libs"
 
 	uuid "github.com/satori/go.uuid"
 )
 
+/*
 type FishHaul struct {
 	ID      int
 	Weight  int
 	Qaulity int
 }
-
+*/
 type Lake struct {
 	ID          int
 	Size        int
@@ -30,6 +25,7 @@ type Lake struct {
 	InCh        chan string `json:"-"`
 }
 
+/*
 type Fish struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`
@@ -38,14 +34,16 @@ type Fish struct {
 	IsLake  bool   `json:"is_lake"`
 	IsRiver bool   `json:"is_river"`
 }
-
+*/
 var (
-	Lakes  []Lake
-	Fishes []Fish
-	//DB      *sql.DB
-	Quality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
+	Lakes []Lake
+
+//	Fishes []Fish
+//DB      *sql.DB
+//	Quality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
 )
 
+/*
 func getMasteryFunc(x float64) float64 {
 	res := -0.0000001329*math.Pow(x, 5) + 0.0000279284*math.Pow(x, 4) - 0.0017605406*math.Pow(x, 3) +
 		0.0339750737*math.Pow(x, 2) + 0.599870964*x + 1.1256425921
@@ -56,6 +54,7 @@ func getMasteryFunc(x float64) float64 {
 	}
 	return res
 }
+*/
 
 func getLakeByUUID(id uuid.UUID) (Lake, error) {
 	for i := range Lakes {
@@ -70,10 +69,12 @@ func GetLakes() []Lake {
 	return Lakes
 }
 
+/*
 func GetRandLakeUUID() uuid.UUID {
 	return Lakes[libs.GetRandInt(0, len(Lakes)-1)].UUID
 }
-
+*/
+/*
 func getFishByLakeSize(size int) []Fish {
 	var f []Fish
 	for i := range Fishes {
@@ -104,7 +105,7 @@ func getFishByID(id int) Fish {
 	}
 	return f
 }
-
+*/
 func (l *Lake) setDayInc() {
 	l.DayInc = int((l.MaxCapacity - l.Capacity) / 100)
 	if l.DayInc < 1 {
@@ -115,8 +116,8 @@ func (l *Lake) setDayInc() {
 		l.DayInc -= (l.Capacity - l.MaxCapacity)
 		l.Capacity = l.MaxCapacity
 	}
-	NewEvent(
-		fmt.Sprintf("В озере %s за день родилось %s рыбы. Всего сейчас %s рыбы.", strconv.Itoa(l.ID), strconv.Itoa(l.DayInc), strconv.Itoa(l.Capacity)))
+	//NewEvent(
+	//	fmt.Sprintf("В озере %s за день родилось %s рыбы. Всего сейчас %s рыбы.", strconv.Itoa(l.ID), strconv.Itoa(l.DayInc), strconv.Itoa(l.Capacity)))
 }
 
 func (l *Lake) lakeListener() {
@@ -127,11 +128,12 @@ func (l *Lake) lakeListener() {
 		case "next":
 			go l.setDayInc()
 		case "fishing":
-			go l.calcFishingResult(params[1], params[2])
+			//go l.calcFishingResult(params[1], params[2])
 		}
 	}
 }
 
+/*
 func (l *Lake) calcFishingResult(skill, personId string) {
 	s, err := strconv.ParseFloat(skill, 64)
 	if err != nil {
@@ -227,7 +229,8 @@ func (l *Lake) calcFishingResult(skill, personId string) {
 	r := strconv.Itoa(len(hauls))
 	NewEvent(fmt.Sprintf("Из озера %s выловили %s рыбы. Осталось %s рыбы.", id, r, strconv.Itoa(l.Capacity)))
 }
-
+*/
+/*
 func CreateLakes(count int) {
 	Lakes = make([]Lake, count)
 	for i := range Lakes {
@@ -261,7 +264,7 @@ func CreateLakes(count int) {
 			make(chan string, 0)}
 	}
 }
-
+*/
 func LakesStart() {
 	for l := range Lakes {
 		go Lakes[l].lakeListener()

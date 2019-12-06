@@ -1,0 +1,62 @@
+id,mastery,category,ingredient,name,rarity,areas,area_size,min,max,is_countable,is_liquid,limit
+1,fishing,fish,cooking,Карась,1,"river,lake",1,100,1000,1,0,2
+2,fishing,fish,cooking,Гольян,1,"river,lake",1,100,300,1,0,2
+3,fishing,fish,cooking,Плотва,1,"river,lake",1,100,500,1,0,2
+4,fishing,fish,cooking,Окунь,1,"river,lake",1,100,2000,1,0,2
+5,fishing,fish,cooking,Красноперка,2,"river,lake",2,100,500,1,0,2
+6,fishing,fish,cooking,Чебак,2,"river,lake",2,100,500,1,0,2
+7,fishing,fish,cooking,Ротан,2,"river,lake",2,100,500,1,0,2
+8,fishing,fish,cooking,Лещ,2,"river,lake",2,300,3000,1,0,2
+9,fishing,fish,cooking,Язь,2,"river,lake",2,300,3000,1,0,2
+10,fishing,fish,cooking,Налим,3,"river,lake",3,300,5000,1,0,2
+11,fishing,fish,cooking,Минога,3,"river,lake",3,300,2000,1,0,2
+12,fishing,fish,cooking,Сазан,3,"river,lake",3,500,10000,1,0,2
+13,fishing,fish,cooking,Щука,3,"river,lake",3,500,10000,1,0,2
+14,fishing,fish,cooking,Судак,3,"river,lake",3,500,6000,1,0,2
+15,fishing,fish,cooking,Голавль,4,"river,lake",4,500,2000,1,0,2
+16,fishing,fish,cooking,Жерех,4,"river,lake",4,1000,12000,1,0,2
+17,fishing,fish,cooking,Линь,4,"river,lake",1,100,1000,1,0,2
+18,fishing,fish,cooking,Форель,5,"river,lake",5,1000,5000,1,0,2
+19,fishing,fish,cooking,Омуль,5,lake,4,300,1000,1,0,2
+20,fishing,fish,cooking,Осётр,5,river,4,5000,50000,1,0,2
+21,hunting,meat,cooking,Оленина,3,"forest,meadow",3,5000,50000,0,0,4
+22,hunting,meat,cooking,Кабанятина,3,"forest,meadow,hill",3,10000,80000,0,0,4
+23,hunting,meat,cooking,Лосятина,5,forest,4,100000,300000,0,0,4
+24,hunting,meat,cooking,Медвежатина,5,forest,4,100000,300000,0,0,4
+25,hunting,meat,cooking,Зайчатина,1,"forest,meadow,hill",1,500,4000,0,0,4
+26,hunting,bird,cooking,Тушка бекаса,1,"lake,swamp,river",2,100,100,1,0,4
+27,hunting,bird,cooking,Тушка дупеля,2,"lake,swamp,river",2,100,200,1,0,4
+28,hunting,bird,cooking,Тушка вальдшнепа,1,"lake,swamp,river",2,100,300,1,0,4
+29,hunting,bird,cooking,Тушка перепела,2,meadow,2,100,100,1,0,4
+30,hunting,bird,cooking,Тушка коростеля,2,"lake,swamp,river",2,100,100,1,0,4
+31,hunting,bird,cooking,Тушка фазана,2,"forest,meadow,lake",2,500,1000,1,0,4
+32,hunting,bird,cooking,Тушка глухаря,4,forest,3,1000,3000,1,0,4
+33,hunting,bird,cooking,Тушка тетерева,3,"forest,meadow",3,500,1000,1,0,4
+34,hunting,bird,cooking,Тушка куропатки,2,"forest,meadow,hill",2,100,500,1,0,4
+35,hunting,bird,cooking,Тушка рябчика,1,forest,2,100,500,1,0,4
+36,hunting,bird,cooking,Тушка утки,2,"lake,swamp,river",3,500,1500,1,0,4
+37,hunting,bird,cooking,Тушка гуся,3,"lake,swamp,river",3,1000,3000,1,0,4
+38,hunting,bird,cooking,Тушка чирка,2,"lake,swamp,river",3,100,300,1,0,4
+39,hunting,bird,cooking,Тушка казарки,2,"lake,swamp,river",3,500,1500,1,0,4
+40,hunting,bird,cooking,Тушка чибиса,2,"lake,swamp,river",2,100,200,1,0,4
+41,food_gathering,berry,cooking,Земляника,1,"meadow, hill, forest",1,100,100,0,0,8
+42,food_gathering,berry,cooking,Клубника,1,"meadow, hill, forest",1,100,100,0,0,8
+43,food_gathering,berry,cooking,Малина,1,forest,2,100,100,0,0,8
+44,food_gathering,berry,cooking,Брусника,1,"forest, swamp",3,100,100,0,0,8
+45,food_gathering,berry,cooking,Клюква,1,"forest, swamp",3,100,100,0,0,8
+46,food_gathering,berry,cooking,Морошка,4,forest,3,100,100,0,0,8
+47,food_gathering,berry,cooking,Черника,3,forest,3,100,100,0,0,8
+48,food_gathering,berry,cooking,Жимолость,3,hill,2,100,100,0,0,8
+49,food_gathering,berry,cooking,Облепиха,2,hill,2,100,100,0,0,8
+50,food_gathering,berry,cooking,Ежевика,2,river,2,100,100,0,0,8
+51,food_gathering,berry,cooking,Шиповник,2,hill,2,100,100,0,0,8
+52,food_gathering,mushroom,cooking,Шампиньоны,2,"meadow, hill",2,100,100,0,0,8
+53,food_gathering,mushroom,cooking,Подберёзовики,3,forest,2,100,100,0,0,8
+54,food_gathering,mushroom,cooking,Маслята,2,forest,3,100,100,0,0,8
+55,food_gathering,mushroom,cooking,Белые грибы,4,forest,3,100,100,0,0,8
+56,food_gathering,mushroom,cooking,Лисички,3,forest,3,100,100,0,0,8
+57,food_gathering,mushroom,cooking,Грузди,3,forest,3,100,100,0,0,8
+58,food_gathering,mushroom,cooking,Опята,2,forest,3,100,100,0,0,8
+59,food_gathering,mushroom,cooking,Рыжики,4,forest,3,100,100,0,0,8
+60,food_gathering,mushroom,cooking,Трюфеля,5,forest,3,100,100,0,0,8
+61,food_gathering,mushroom,cooking,Сыроежки,1,forest,2,100,100,0,0,8

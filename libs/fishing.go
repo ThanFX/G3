@@ -1,83 +1,14 @@
 package libs
 
 import (
-	"database/sql"
-	"log"
 	"math"
 	"math/rand"
 )
-
-type Fish struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Rarity  int    `json:"rarity"`
-	Area    int    `json:"area"`
-	IsLake  bool   `json:"is_lake"`
-	IsRiver bool   `json:"is_river"`
-}
 
 type FishHaul struct {
 	ID      int
 	Weight  int
 	Qaulity int
-}
-
-var (
-	FishQuality = [5]string{"Обычная", "Хорошая", "Отличная", "Превосходная", "Идеальная"}
-	Fishes      []Fish
-	DB          *sql.DB
-)
-
-func ReadFishCatalog() {
-	rows, err := DB.Query("select * from fishes")
-	if err != nil {
-		log.Fatalf("Ошибка получения рыб из БД: %s", err)
-	}
-	defer rows.Close()
-
-	var f Fish
-	for rows.Next() {
-		err = rows.Scan(&f.ID, &f.Name, &f.Rarity, &f.IsLake, &f.IsRiver, &f.Area)
-		if err != nil {
-			log.Fatal("ошибка парсинга записи о рыбе: ", err)
-		}
-		Fishes = append(Fishes, f)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func GetFishByAreaSize(size int) []Fish {
-	var f []Fish
-	for i := range Fishes {
-		if Fishes[i].Area <= size {
-			f = append(f, Fishes[i])
-		}
-	}
-	return f
-}
-
-func GetFishNameForAreaSize(areaSize, rarity int) int {
-	var fishes []Fish
-	for i := range Fishes {
-		if Fishes[i].Area <= areaSize && Fishes[i].Rarity <= rarity {
-			fishes = append(fishes, Fishes[i])
-		}
-	}
-	return fishes[GetRandInt(0, len(fishes)-1)].ID
-}
-
-func GetFishByID(id int) Fish {
-	var f Fish
-	for i := range Fishes {
-		if Fishes[i].ID == id {
-			f = Fishes[i]
-			break
-		}
-	}
-	return f
 }
 
 func GetFishingInitSize(size int) (cap, maxCap int) {
@@ -113,27 +44,6 @@ func GetFishingDayInc(cap, size int) int {
 		cap = maxCap
 	}
 	return cap
-}
-
-func getMasteryFunc(x float64) float64 {
-	res := -0.0000001329*math.Pow(x, 5) + 0.0000279284*math.Pow(x, 4) - 0.0017605406*math.Pow(x, 3) +
-		0.0339750737*math.Pow(x, 2) + 0.599870964*x + 1.1256425921
-	if res < 1 {
-		res = 1
-	} else if res > 100 {
-		res = 100
-	}
-	return res
-}
-
-func getFishNameForAreaSize(areaSize, rarity int) int {
-	var fishes []Fish
-	for i := range Fishes {
-		if Fishes[i].Area <= areaSize && Fishes[i].Rarity <= rarity {
-			fishes = append(fishes, Fishes[i])
-		}
-	}
-	return fishes[GetRandInt(0, len(fishes)-1)].ID
 }
 
 func CalcPersonFishingDayHaul(areaType string, areaSize int, personSkill float64) []FishHaul {
@@ -181,7 +91,7 @@ func CalcPersonFishingDayHaul(areaType string, areaSize int, personSkill float64
 					fishRarity = rar
 				}
 			}
-			haul.ID = getFishNameForAreaSize(areaSize, fishRarity)
+			haul.ID = getRandMasteryItemIDFromArea("fishing", areaType, areaSize, fishRarity)
 
 			// Определяем качество пойманной рыбы
 			var fishQuality = 1
