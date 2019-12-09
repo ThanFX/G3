@@ -40,9 +40,13 @@ func (p *Person) SetDayInc() {
 	switch p.DayAction.Action {
 	case "fishing":
 		fishHaul := libs.CalcPersonFishingDayHaul(p.DayAction.AreaType, p.DayAction.AreaSize, p.getPersonMasterySkill(p.DayAction.Action))
-		p.createFishingHaul(fishHaul)
+		p.createHaul(fishHaul)
 	case "hunting":
+		huntHaul := libs.CalcPersonHuntingDayHaul(p.DayAction.AreaType, p.DayAction.AreaSize, p.getPersonMasterySkill(p.DayAction.Action))
+		p.createHaul(huntHaul)
 	case "food_gathering":
+		fgHaul := libs.CalcPersonFGDayHaul(p.DayAction.AreaType, p.DayAction.AreaSize, p.getPersonMasterySkill(p.DayAction.Action))
+		p.createHaul(fgHaul)
 	case "waiting":
 	}
 	p.removeRottingItems()
@@ -79,7 +83,7 @@ func (p *Person) getInventory() map[uuid.UUID]PersonInventory {
 	return p.Inventory
 }
 
-func (p *Person) createFishingHaul(hauls []libs.FishHaul) {
+func (p *Person) createHaul(hauls []libs.Haul) {
 	for i := range hauls {
 		f := libs.GetMasteryItemByID(hauls[i].ID)
 		item := getItemPool().(*Item)
@@ -232,7 +236,7 @@ func CreatePerson() {
 					Skill:   25},
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("hunting"),
-					Skill:   15},
+					Skill:   30},
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("food_gathering"),
 					Skill:   10},
@@ -256,7 +260,7 @@ func CreatePerson() {
 					Skill:   5},
 				PersonMastery{
 					Mastery: libs.GetMasteryByName("food_gathering"),
-					Skill:   7},
+					Skill:   27},
 			},
 			DayAction: PersonDayAction{
 				Action: "waiting"}},

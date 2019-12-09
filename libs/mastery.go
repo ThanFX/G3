@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+type Haul struct {
+	ID      int
+	Weight  int
+	Qaulity int
+}
+
 type Mastery struct {
 	Name     string `json:"name"`
 	NameID   string `json:"id"`
@@ -101,7 +107,7 @@ func (mi *MasteryItem) IsAreaContains(areaType string) bool {
 	return false
 }
 
-func getRandMasteryItemIDFromArea(mastery, areaType string, areaSize, rarity int) int {
+func getRandMasteryItemIDFromArea(mastery, areaType string, areaSize, rarity int) MasteryItem {
 	var fishes []MasteryItem
 	for i := range MasteryItems {
 		if mastery == MasteryItems[i].Mastery &&
@@ -111,7 +117,7 @@ func getRandMasteryItemIDFromArea(mastery, areaType string, areaSize, rarity int
 			fishes = append(fishes, MasteryItems[i])
 		}
 	}
-	return fishes[GetRandInt(0, len(fishes)-1)].ID
+	return fishes[GetRandInt(0, len(fishes)-1)]
 }
 
 func GetMasteryItemByID(id int) MasteryItem {
