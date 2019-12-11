@@ -1,8 +1,8 @@
 package models
 
 import (
-	"errors"
-	"fmt"
+	"database/sql"
+	"log"
 	"strings"
 
 	"github.com/ThanFX/G3/libs"
@@ -10,8 +10,9 @@ import (
 )
 
 type PersonMastery struct {
-	Mastery libs.Mastery `json:"mastery"`
-	Skill   float64      `json:"skill"`
+	MasteryID int          `json:"-"`
+	Mastery   libs.Mastery `json:"mastery"`
+	Skill     float64      `json:"skill"`
 }
 
 type PersonDayAction struct {
@@ -23,7 +24,7 @@ type PersonDayAction struct {
 }
 
 type Person struct {
-	ID         uuid.UUID                     `json:"id"`
+	ID         int                           `json:"id"`
 	Name       string                        `json:"name"`
 	Age        int                           `json:"age"`
 	IsMale     bool                          `json:"is_male"`
@@ -160,6 +161,7 @@ func (p *Person) setFishingResult(res string) {
 	NewEvent(fmt.Sprintf("Персонаж %s выловил %d рыбы и получил прирост навыка рыбалки на %f. Текущее значение навыка - %f", p.Name, len(hauls), dM, p.Skill))
 }
 */
+/*
 func PersonMessage(id uuid.UUID, text string) {
 	p, err := getPersonByUUID(id)
 	if err != nil {
@@ -168,7 +170,8 @@ func PersonMessage(id uuid.UUID, text string) {
 	}
 	p.InCh <- text
 }
-
+*/
+/*
 func getPersonByUUID(id uuid.UUID) (Person, error) {
 	for i := range Persons {
 		if uuid.Equal(Persons[i].ID, id) {
@@ -177,7 +180,7 @@ func getPersonByUUID(id uuid.UUID) (Person, error) {
 	}
 	return Persons[0], errors.New("Такой персонаж не найдено\n")
 }
-
+*/
 func (p *Person) getPersonMasterySkill(mastery string) float64 {
 	s := 0.0
 	for i := range p.Mastership {
@@ -189,6 +192,7 @@ func (p *Person) getPersonMasterySkill(mastery string) float64 {
 	return s
 }
 
+/*
 func GetPersonInventory(param string) (inv []PersonInventory) {
 	inv = make([]PersonInventory, 0, 0)
 	id, err := uuid.FromString(param)
@@ -218,75 +222,58 @@ func GetPersonInventory(param string) (inv []PersonInventory) {
 	}
 	return
 }
+*/
+func readPersonMastershipsCatalog(DB *sql.DB, person_id int) []PersonMastery {
+	var (
+		pms []PersonMastery
+		pm  PersonMastery
+	)
+	rows, err := DB.Query("select mastery_id, skill from person_masterships where person_id = ?", person_id)
+	if err != nil {
+		log.Fatalf("Ошибка получения списка профессий персонажа из БД: %s", err)
+	}
+	defer rows.Close()
 
-func CreatePerson() {
-	Persons = make([]Person, 3)
-	Persons = []Person{
-		Person{
-			ID:        uuid.Must(uuid.NewV1()),
-			Name:      "Эльсил Осландор",
-			Age:       31,
-			IsMale:    true,
-			Chunk:     uuid.Must(uuid.FromString("36104469-81e8-4896-9790-4828c65e913c")),
-			InCh:      make(chan string, 0),
-			Inventory: make(map[uuid.UUID]PersonInventory),
-			Mastership: []PersonMastery{
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("fishing"),
-					Skill:   25},
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("hunting"),
-					Skill:   30},
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("food_gathering"),
-					Skill:   10},
-			},
-			DayAction: PersonDayAction{
-				Action: "waiting"}},
-		Person{
-			ID:        uuid.Must(uuid.NewV1()),
-			Name:      "Георгил Герон",
-			Age:       16,
-			IsMale:    true,
-			Chunk:     uuid.Must(uuid.FromString("bfff4f61-aae3-4fb6-b2f9-84e4638e270a")),
-			InCh:      make(chan string, 0),
-			Inventory: make(map[uuid.UUID]PersonInventory),
-			Mastership: []PersonMastery{
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("fishing"),
-					Skill:   15},
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("hunting"),
-					Skill:   5},
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("food_gathering"),
-					Skill:   27},
-			},
-			DayAction: PersonDayAction{
-				Action: "waiting"}},
-		Person{
-			ID:        uuid.Must(uuid.NewV1()),
-			Name:      "Фарибар Тартелидил",
-			Age:       54,
-			IsMale:    true,
-			Chunk:     uuid.Must(uuid.FromString("36104469-81e8-4896-9790-4828c65e913c")),
-			InCh:      make(chan string, 0),
-			Inventory: make(map[uuid.UUID]PersonInventory),
-			Mastership: []PersonMastery{
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("fishing"),
-					Skill:   41},
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("hunting"),
-					Skill:   16},
-				PersonMastery{
-					Mastery: libs.GetMasteryByName("food_gathering"),
-					Skill:   19},
-			},
-			DayAction: PersonDayAction{
-				Action: "waiting"}}}
-	for i := range Persons {
-		Persons[i].setDayMastery()
+	for rows.Next() {
+		err = rows.Scan(&pm.MasteryID, &pm.Skill)
+		if err != nil {
+			log.Fatal("ошибка парсинга записи мастерства персонажа: ", err)
+		}
+		pm.Mastery = libs.GetMasteryByID(pm.MasteryID)
+		pms = append(pms, pm)
+	}
+	return pms
+}
+
+func ReadPersonsCatalog(DB *sql.DB) {
+	var p Person
+	var ch, act string
+	rows, err := DB.Query("select * from persons")
+	if err != nil {
+		log.Fatalf("Ошибка получения персонажей из БД: %s", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(
+			&p.ID,
+			&p.Name,
+			&p.Age,
+			&p.IsMale,
+			&ch,
+			&act)
+		if err != nil {
+			log.Fatal("ошибка парсинга записи персонажа: ", err)
+		}
+		p.Mastership = readPersonMastershipsCatalog(DB, p.ID)
+		p.Chunk = uuid.Must(uuid.FromString(ch))
+		var pda PersonDayAction
+		pda.Action = act
+		p.DayAction = pda
+		p.InCh = make(chan string, 0)
+		p.Inventory = make(map[uuid.UUID]PersonInventory)
+
+		Persons = append(Persons, p)
 	}
 }
 

@@ -3,11 +3,10 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/ThanFX/G3/models"
 	"github.com/julienschmidt/httprouter"
 )
 
 func PersonInventoryHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	inv := models.GetPersonInventory(p.ByName("id"))
-	SendJsonResponse(w, r, http.StatusOK, inv, len(inv), "")
+	//inv := models.GetPersonInventory(p.ByName("id"))
+	//SendJsonResponse(w, r, http.StatusOK, inv, len(inv), "")
 }

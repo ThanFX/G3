@@ -26,14 +26,14 @@ var (
 
 func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	libs.ReadMateryItemsCatalog()
-	libs.ReadMastershipsCatalog()
+	libs.ReadMateryItemsCatalog(DB)
+	libs.ReadMastershipsCatalog(DB)
 	models.SetDate(9842)
 	models.SetCalendar()
 	models.MapInitialize()
 	models.CreateTerrains()
 	areas.AreasStart()
-	models.CreatePerson()
+	models.ReadPersonsCatalog(DB)
 	models.PersonsStart()
 	//go models.EventLoop()
 	fmt.Println("Запускаем сервер...")
@@ -61,7 +61,7 @@ func main() {
 	if err != nil {
 		stdlog.Printf("Ошибка открытия файла БД: %s", err)
 	}
-	libs.DB = DB
+	//libs.DB = DB
 	models.DB = DB
 	defer DB.Close()
 	start()

@@ -38,7 +38,6 @@ type MasteryItem struct {
 }
 
 var (
-	DB           *sql.DB
 	MasteryItems []MasteryItem
 	Quality                         = [5]string{"Обычное", "Хорошее", "Отличное", "Превосходное", "Идеальное"}
 	Masterships  map[string]Mastery = make(map[string]Mastery)
@@ -52,7 +51,18 @@ func GetMasteryByName(name string) Mastery {
 	return Masterships[name]
 }
 
-func ReadMastershipsCatalog() {
+func GetMasteryByID(id int) Mastery {
+	var m Mastery
+	for i := range Masterships {
+		if Masterships[i].ID == id {
+			m = Masterships[i]
+			break
+		}
+	}
+	return m
+}
+
+func ReadMastershipsCatalog(DB *sql.DB) {
 	var m Mastery
 	rows, err := DB.Query("select * from masterships")
 	if err != nil {
@@ -69,7 +79,7 @@ func ReadMastershipsCatalog() {
 	}
 }
 
-func ReadMateryItemsCatalog() {
+func ReadMateryItemsCatalog(DB *sql.DB) {
 	rows, err := DB.Query("select * from mastery_items")
 	if err != nil {
 		log.Fatalf("Ошибка получения предметов из БД: %s", err)
