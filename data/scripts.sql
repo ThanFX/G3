@@ -1,6 +1,4 @@
 -- SQLite
-select * from fishes;
-
 CREATE TABLE objects (
 	id INTEGER NOT NULL,
 	"level" INTEGER NOT NULL,
@@ -11,4 +9,13 @@ CREATE TABLE objects (
 	"limit" INTEGER
 );
 
+CREATE TABLE masterships (
+	id INTEGER NOT NULL,
+	name TEXT,
+	short_name TEXT,
+	min INTEGER,
+	max INTEGER
+);
+
 select * from map;
+select * from masterships;

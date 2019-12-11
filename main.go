@@ -26,6 +26,8 @@ var (
 
 func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	libs.ReadMateryItemsCatalog()
+	libs.ReadMastershipsCatalog()
 	models.SetDate(9842)
 	models.SetCalendar()
 	models.MapInitialize()
@@ -33,7 +35,6 @@ func start() {
 	areas.AreasStart()
 	models.CreatePerson()
 	models.PersonsStart()
-	libs.ReadMateryItemsCatalog()
 	//go models.EventLoop()
 	fmt.Println("Запускаем сервер...")
 }

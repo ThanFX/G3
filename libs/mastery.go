@@ -14,6 +14,7 @@ type Haul struct {
 }
 
 type Mastery struct {
+	ID       int    `json:"-"`
 	Name     string `json:"name"`
 	NameID   string `json:"id"`
 	MinValue int    `json:"-"`
@@ -40,30 +41,32 @@ var (
 	DB           *sql.DB
 	MasteryItems []MasteryItem
 	Quality                         = [5]string{"Обычное", "Хорошее", "Отличное", "Превосходное", "Идеальное"}
-	masterships  map[string]Mastery = map[string]Mastery{
-		"fishing": Mastery{
-			Name:     "Рыбная ловля",
-			NameID:   "fishing",
-			MinValue: 1,
-			MaxValue: 100},
-		"hunting": Mastery{
-			Name:     "Охота",
-			NameID:   "hunting",
-			MinValue: 1,
-			MaxValue: 100},
-		"food_gathering": Mastery{
-			Name:     "Собирательство грибов и ягод",
-			NameID:   "food_gathering",
-			MinValue: 1,
-			MaxValue: 100}}
+	Masterships  map[string]Mastery = make(map[string]Mastery)
 )
 
 func GetMasterships() map[string]Mastery {
-	return masterships
+	return Masterships
 }
 
 func GetMasteryByName(name string) Mastery {
-	return masterships[name]
+	return Masterships[name]
+}
+
+func ReadMastershipsCatalog() {
+	var m Mastery
+	rows, err := DB.Query("select * from masterships")
+	if err != nil {
+		log.Fatalf("Ошибка получения профессий из БД: %s", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&m.ID, &m.Name, &m.NameID, &m.MinValue, &m.MaxValue)
+		if err != nil {
+			log.Fatal("ошибка парсинга записи мастерства: ", err)
+		}
+		Masterships[m.NameID] = m
+	}
 }
 
 func ReadMateryItemsCatalog() {
