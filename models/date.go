@@ -1,5 +1,10 @@
 package models
 
+import (
+	"database/sql"
+	"log"
+)
+
 var currentDay int
 
 type TimePeriod struct {
@@ -16,6 +21,15 @@ func SetCalendar() {
 	Calendar["ten"] = TimePeriod{"Декада", 1, 3, 10}
 	Calendar["month"] = TimePeriod{"Месяц", 1, 12, 30}
 	Calendar["year"] = TimePeriod{"Год", 1, 10000, 360}
+}
+
+func ReadDate(DB *sql.DB) {
+	var date int
+	err := DB.QueryRow("select value from params where key='date'").Scan(&date)
+	if err != nil {
+		log.Fatal("ошибка парсинга записи времени : ", err)
+	}
+	SetDate(date)
 }
 
 func GetDate() int {

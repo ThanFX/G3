@@ -33,6 +33,7 @@ CREATE TABLE person_masterships (
 );
 
 CREATE TABLE person_inventory (
+	id TEXT NOT NULL,
 	person_id INTEGER NOT NULL,
 	item_id INTEGER NOT NULL,
 	weight TEXT,
@@ -40,6 +41,11 @@ CREATE TABLE person_inventory (
 	creation_date INTEGER,
 	exp_date INTEGER,
 	is_deleted INTEGER
+);
+
+CREATE TABLE params (
+	"key" TEXT,
+	value TEXT
 );
 
 
