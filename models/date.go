@@ -5,7 +5,11 @@ import (
 	"log"
 )
 
-var currentDay int
+var (
+	currentDay int
+	DB         *sql.DB
+	wq         string = "UPDATE params SET value=$1 WHERE key='date'"
+)
 
 type TimePeriod struct {
 	Name   string
@@ -16,20 +20,31 @@ type TimePeriod struct {
 
 var Calendar map[string]TimePeriod
 
-func SetCalendar() {
+func setCalendar() {
 	Calendar = make(map[string]TimePeriod)
 	Calendar["ten"] = TimePeriod{"Декада", 1, 3, 10}
 	Calendar["month"] = TimePeriod{"Месяц", 1, 12, 30}
 	Calendar["year"] = TimePeriod{"Год", 1, 10000, 360}
 }
 
-func ReadDate(DB *sql.DB) {
+func ReadDate() {
 	var date int
-	err := DB.QueryRow("select value from params where key='date'").Scan(&date)
+	err := DB.QueryRow("SELECT value FROM params WHERE key='date'").Scan(&date)
 	if err != nil {
-		log.Fatal("ошибка парсинга записи времени : ", err)
+		log.Fatal("Ошибка парсинга записи времени : ", err)
 	}
 	SetDate(date)
+	setCalendar()
+}
+
+func writeDate() {
+	tx, err := DB.Begin()
+	defer tx.Rollback()
+	_, err = tx.Exec(wq, currentDay)
+	if err != nil {
+		log.Fatal("Ошибка записи текущего времени в БД : ", err)
+	}
+	tx.Commit()
 }
 
 func GetDate() int {
@@ -42,6 +57,7 @@ func SetDate(date int) {
 
 func IncDate() {
 	currentDay++
+	writeDate()
 }
 
 func GetCalendarDate() map[string]int {

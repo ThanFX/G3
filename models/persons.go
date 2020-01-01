@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"log"
 	"strings"
 
@@ -50,11 +49,47 @@ func (p *Person) SetDayInc() {
 		p.createHaul(fgHaul)
 	case "waiting":
 	}
+	p.saveDBInventory()
 	p.removeRottingItems()
 	p.setDayMastery()
+}
 
-	//lakeUUID := GetRandLakeUUID()
-	//SLakeMessage(lakeUUID, fmt.Sprintf("fishing|%s|%s", strconv.FormatFloat(p.Skill, 'f', -1, 64), p.ID.String()))
+func (p *Person) saveDBInventory() {
+	var f bool
+	var ids []uuid.UUID
+	rows, err := DB.Query("SELECT id FROM person_inventory where person_id=$1 AND is_deleted=FALSE", p.ID)
+	if err != nil {
+		log.Fatalf("Ошибка получения предметов инвентаря персонажа %d: %s", p.ID, err)
+	}
+	for rows.Next() {
+		var id string
+		err = rows.Scan(&id)
+		if err != nil {
+			log.Fatalf("Ошибка получения парсинга идентификатора предмета инвентаря персонажа %d: %s", p.ID, err)
+		}
+		ids = append(ids, uuid.FromStringOrNil(id))
+	}
+	rows.Close()
+
+	tx, _ := DB.Begin()
+	defer tx.Rollback()
+	for key, v := range p.Inventory {
+		f = false
+		for i := range ids {
+			if uuid.Equal(ids[i], key) {
+				f = true
+				break
+			}
+		}
+		if !f {
+			_, err = tx.Exec("INSERT INTO person_inventory VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+				key, p.ID, v.ItemID, v.Weight, v.Quality, v.CreationDate, v.ExpDate, 0)
+			if err != nil {
+				log.Fatal("Ошибка сохранения предмета инвентаря: ", err)
+			}
+		}
+	}
+	tx.Commit()
 }
 
 func PersonsNextDate() {
@@ -101,6 +136,7 @@ func (p *Person) createHaul(hauls []libs.Haul) {
 		Items = append(Items, item)
 		p.Inventory[item.UUID] = PersonInventory{
 			ID:           item.UUID,
+			ItemID:       f.ID,
 			Name:         item.Name,
 			Category:     f.Category,
 			Weight:       item.Weight,
@@ -112,10 +148,21 @@ func (p *Person) createHaul(hauls []libs.Haul) {
 	}
 }
 
+func removeDBInventory(id uuid.UUID) {
+	tx, _ := DB.Begin()
+	defer tx.Rollback()
+	_, err := tx.Exec("UPDATE person_inventory SET is_deleted=true WHERE id = $1", id.String())
+	if err != nil {
+		log.Fatal("Ошибка удаления предмета инвентаря: ", err)
+	}
+	tx.Commit()
+}
+
 func (p *Person) removeRottingItems() {
 	for key := range p.Inventory {
 		if p.Inventory[key].ExpDate < GetDate() {
-			item := getItemByUUID(p.Inventory[key].ID)
+			item := getItemByUUID(key)
+			removeDBInventory(key)
 			delete(p.Inventory, key)
 			putItemToPool(item)
 		}
@@ -223,14 +270,14 @@ func GetPersonInventory(param string) (inv []PersonInventory) {
 	return
 }
 */
-func readPersonMastershipsCatalog(DB *sql.DB, person_id int) []PersonMastery {
+func readPersonMastershipsCatalog(person_id int) []PersonMastery {
 	var (
 		pms []PersonMastery
 		pm  PersonMastery
 	)
-	rows, err := DB.Query("select mastery_id, skill from person_masterships where person_id = ?", person_id)
+	rows, err := DB.Query("select mastery_id, skill from person_masterships where person_id = $1", person_id)
 	if err != nil {
-		log.Fatalf("Ошибка получения списка профессий персонажа из БД: %s", err)
+		log.Fatalf("Ошибка получения списка профессий персонажа %d из БД: %s", person_id, err)
 	}
 	defer rows.Close()
 
@@ -245,7 +292,26 @@ func readPersonMastershipsCatalog(DB *sql.DB, person_id int) []PersonMastery {
 	return pms
 }
 
-func ReadPersonsCatalog(DB *sql.DB) {
+func readPersonInventory(person_id int) map[uuid.UUID]PersonInventory {
+	var pis map[uuid.UUID]PersonInventory = make(map[uuid.UUID]PersonInventory)
+	var pi PersonInventory
+	rows, err := DB.Query("SELECT * FROM person_inventory WHERE person_id=$1 AND is_deleted=false", person_id)
+	if err != nil {
+		log.Fatalf("Ошибка получения инвенторя персонажей из БД: %s", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var s, s1 string
+		err = rows.Scan(
+			&s,
+			$s1,
+			pi.ItemID			
+		)
+	}
+	return pi
+}
+
+func ReadPersonsCatalog() {
 	var p Person
 	var ch, act string
 	rows, err := DB.Query("select * from persons")
@@ -265,7 +331,7 @@ func ReadPersonsCatalog(DB *sql.DB) {
 		if err != nil {
 			log.Fatal("ошибка парсинга записи персонажа: ", err)
 		}
-		p.Mastership = readPersonMastershipsCatalog(DB, p.ID)
+		p.Mastership = readPersonMastershipsCatalog(p.ID)
 		p.Chunk = uuid.Must(uuid.FromString(ch))
 		var pda PersonDayAction
 		pda.Action = act
@@ -274,6 +340,10 @@ func ReadPersonsCatalog(DB *sql.DB) {
 		p.Inventory = make(map[uuid.UUID]PersonInventory)
 
 		Persons = append(Persons, p)
+	}
+
+	for i := range Persons {
+		Persons[i].setDayMastery()
 	}
 }
 

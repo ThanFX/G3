@@ -17,23 +17,22 @@ import (
 	"github.com/ThanFX/G3/models"
 	"github.com/braintree/manners"
 	"github.com/julienschmidt/httprouter"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
 )
 
 var (
-	DB *sql.DB
+	db *sql.DB
 )
 
 func start() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	libs.ReadMateryItemsCatalog(DB)
-	libs.ReadMastershipsCatalog(DB)
-	models.SetDate(9842)
-	models.SetCalendar()
+	libs.ReadMasteryItemsCatalog(db)
+	libs.ReadMastershipsCatalog(db)
+	models.ReadDate()
 	models.MapInitialize()
 	models.CreateTerrains()
 	areas.AreasStart()
-	models.ReadPersonsCatalog(DB)
+	models.ReadPersonsCatalog()
 	models.PersonsStart()
 	//go models.EventLoop()
 	fmt.Println("Запускаем сервер...")
@@ -57,13 +56,15 @@ func getRouter() *httprouter.Router {
 
 func main() {
 	conf, err := config.Load()
-	DB, err = sql.Open("sqlite3", "data/g3.db")
+	db, err = sql.Open("postgres", "postgres://cdwjrqix:m-zQFIhz8jCYgY4XmyvV9Z40h1ShZGSR@balarama.db.elephantsql.com:5432/cdwjrqix")
 	if err != nil {
 		stdlog.Printf("Ошибка открытия файла БД: %s", err)
 	}
-	//libs.DB = DB
-	models.DB = DB
-	defer DB.Close()
+	db.SetMaxIdleConns(3)
+	db.SetMaxOpenConns(3)
+	db.SetConnMaxLifetime(0)
+	models.DB = db
+	defer db.Close()
 	start()
 	handlers.RunHub()
 	rand.Seed(time.Now().UTC().UnixNano())

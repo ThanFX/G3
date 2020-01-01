@@ -9,6 +9,7 @@ type InventoryItem struct {
 
 type PersonInventory struct {
 	ID           uuid.UUID `json:"id"`
+	ItemID       int       `json:"-"`
 	Name         string    `json:"name"`
 	Weight       int       `json:"weight"`
 	Limit        int       `json:"limit"`

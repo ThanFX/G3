@@ -62,9 +62,9 @@ func GetMasteryByID(id int) Mastery {
 	return m
 }
 
-func ReadMastershipsCatalog(DB *sql.DB) {
+func ReadMastershipsCatalog(db *sql.DB) {
 	var m Mastery
-	rows, err := DB.Query("select * from masterships")
+	rows, err := db.Query("select * from masterships")
 	if err != nil {
 		log.Fatalf("Ошибка получения профессий из БД: %s", err)
 	}
@@ -79,8 +79,8 @@ func ReadMastershipsCatalog(DB *sql.DB) {
 	}
 }
 
-func ReadMateryItemsCatalog(DB *sql.DB) {
-	rows, err := DB.Query("select * from mastery_items")
+func ReadMasteryItemsCatalog(db *sql.DB) {
+	rows, err := db.Query("select * from mastery_items")
 	if err != nil {
 		log.Fatalf("Ошибка получения предметов из БД: %s", err)
 	}
