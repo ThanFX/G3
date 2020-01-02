@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"log"
 	"strings"
 
@@ -121,30 +122,8 @@ func (p *Person) getInventory() map[uuid.UUID]PersonInventory {
 
 func (p *Person) createHaul(hauls []libs.Haul) {
 	for i := range hauls {
-		f := libs.GetMasteryItemByID(hauls[i].ID)
-		item := getItemPool().(*Item)
-		item.UUID = uuid.Must(uuid.NewV1())
-		item.Name = f.Name
-		item.Weight = hauls[i].Weight
-		item.Quality = hauls[i].Qaulity
-		item.Limit = f.LimitDay
-		item.CreationDate = p.DayAction.Today
-		item.ExpDate = item.CreationDate + item.Limit
-		item.IsCountable = f.IsCountable
-		item.Object.IsCountable = item.IsCountable
-		item.Object.Name = f.Category
-		Items = append(Items, item)
-		p.Inventory[item.UUID] = PersonInventory{
-			ID:           item.UUID,
-			ItemID:       f.ID,
-			Name:         item.Name,
-			Category:     f.Category,
-			Weight:       item.Weight,
-			Limit:        item.Limit,
-			Quality:      item.Quality,
-			CreationDate: item.CreationDate,
-			ExpDate:      item.ExpDate,
-			IsCountable:  f.IsCountable}
+		pi := createPersonItem(hauls[i].ID, hauls[i].Weight, hauls[i].Qaulity, p.DayAction.Today, "")
+		p.Inventory[pi.ID] = pi
 	}
 }
 
@@ -218,16 +197,16 @@ func PersonMessage(id uuid.UUID, text string) {
 	p.InCh <- text
 }
 */
-/*
-func getPersonByUUID(id uuid.UUID) (Person, error) {
+
+func getPersonByID(id int) (Person, error) {
 	for i := range Persons {
-		if uuid.Equal(Persons[i].ID, id) {
+		if Persons[i].ID == id {
 			return Persons[i], nil
 		}
 	}
 	return Persons[0], errors.New("Такой персонаж не найдено\n")
 }
-*/
+
 func (p *Person) getPersonMasterySkill(mastery string) float64 {
 	s := 0.0
 	for i := range p.Mastership {
@@ -292,23 +271,64 @@ func readPersonMastershipsCatalog(person_id int) []PersonMastery {
 	return pms
 }
 
+func createPersonItem(item_id, weight, quality, creation_date int, uid string) PersonInventory {
+	it := libs.GetMasteryItemByID(item_id)
+	item := getItemPool().(*Item)
+	if uid == "" {
+		item.UUID = uuid.Must(uuid.NewV4())
+	} else {
+		item.UUID = uuid.Must(uuid.FromString(uid))
+	}
+	item.Name = it.Name
+	item.Weight = weight
+	item.Quality = quality
+	item.Limit = it.LimitDay
+	item.CreationDate = creation_date
+	item.ExpDate = item.CreationDate + item.Limit
+	item.IsCountable = it.IsCountable
+	item.Object.IsCountable = item.IsCountable
+	item.Object.Name = it.Category
+	Items = append(Items, item)
+	return PersonInventory{
+		ID:           item.UUID,
+		ItemID:       item_id,
+		Name:         item.Name,
+		Category:     it.Category,
+		Weight:       item.Weight,
+		Limit:        item.Limit,
+		Quality:      item.Quality,
+		CreationDate: item.CreationDate,
+		ExpDate:      item.ExpDate,
+		IsCountable:  it.IsCountable}
+}
+
 func readPersonInventory(person_id int) map[uuid.UUID]PersonInventory {
+	type PI struct {
+		id  string
+		pid int
+		iid int
+		w   int
+		q   int
+		cd  int
+		ed  int
+		d   bool
+	}
 	var pis map[uuid.UUID]PersonInventory = make(map[uuid.UUID]PersonInventory)
-	var pi PersonInventory
 	rows, err := DB.Query("SELECT * FROM person_inventory WHERE person_id=$1 AND is_deleted=false", person_id)
 	if err != nil {
-		log.Fatalf("Ошибка получения инвенторя персонажей из БД: %s", err)
+		log.Fatalf("Ошибка получения инвентаря персонажей из БД: %s", err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var s, s1 string
-		err = rows.Scan(
-			&s,
-			$s1,
-			pi.ItemID			
-		)
+		var i PI
+		err = rows.Scan(&i.id, &i.pid, &i.iid, &i.w, &i.q, &i.cd, &i.ed, &i.d)
+		if err != nil {
+			log.Fatalf("Ошибка парсинга инвентаря персонажей из БД: %s", err)
+		}
+		pi := createPersonItem(i.iid, i.w, i.q, i.cd, i.id)
+		pis[pi.ID] = pi
 	}
-	return pi
+	return pis
 }
 
 func ReadPersonsCatalog() {
@@ -338,7 +358,7 @@ func ReadPersonsCatalog() {
 		p.DayAction = pda
 		p.InCh = make(chan string, 0)
 		p.Inventory = make(map[uuid.UUID]PersonInventory)
-
+		p.Inventory = readPersonInventory(p.ID)
 		Persons = append(Persons, p)
 	}
 
