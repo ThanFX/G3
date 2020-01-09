@@ -34,7 +34,7 @@ func start() {
 	areas.AreasStart()
 	models.ReadPersonsCatalog()
 	models.PersonsStart()
-	//go models.EventLoop()
+	go startBot()
 	fmt.Println("Запускаем сервер...")
 }
 
