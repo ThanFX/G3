@@ -16,6 +16,17 @@ type Player struct {
 
 var Players map[string]*Player
 
+func getInlineKBMainScreen() tbot.InlineKeyboardMarkup {
+	ikb := tbot.NewInlineKeyboardMarkup(
+		tbot.NewInlineKeyboardRow(
+			tbot.NewInlineKeyboardButtonData("О персонаже", "about_player"),
+			tbot.NewInlineKeyboardButtonData("Карта", "map")),
+		tbot.NewInlineKeyboardRow(
+			tbot.NewInlineKeyboardButtonData("Навыки", "skills"),
+			tbot.NewInlineKeyboardButtonData("Заметки", "keynotes")))
+	return ikb
+}
+
 func startBot() {
 
 	bot, err := tbot.NewBotAPI("839806396:AAGKWntZYsh4z1ippHIcDVWKVRy0P_ECr2o")
@@ -48,6 +59,14 @@ func startBot() {
 				UserName:    upd.Message.From.UserName,
 				ChatID:      upd.Message.Chat.ID,
 				LastMesTime: time.Now()}
+		}
+
+		switch upd.Message.Command() {
+		case "start":
+			m := "Привет, " + upd.Message.From.FirstName
+			msg := tbot.NewMessage(upd.Message.Chat.ID, m)
+			msg.ReplyMarkup = getInlineKBMainScreen()
+			bot.Send(msg)
 		}
 
 		log.Printf("[%s] %s", upd.Message.From.UserName, upd.Message.Text)
